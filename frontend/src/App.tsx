@@ -1,0 +1,254 @@
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
+import { Footer } from "@/components/layout/Footer";
+import { AgencyMarquee } from "@/components/sections/AgencyMarquee";
+import { About } from "@/components/sections/About";
+import { Announcement } from "@/components/sections/Announcement";
+import { FAQContact } from "@/components/sections/FAQContact";
+import { Brands } from "@/components/sections/Brands";
+import { Hero } from "@/components/sections/Hero";
+import { Services } from "@/components/sections/Services";
+import { AboutPage } from "@/components/pages/AboutPage";
+import { ProjectsPage } from "@/components/pages/ProjectsPage";
+import { ProjectDetailPage } from "@/components/pages/ProjectDetailPage";
+import { ServicesPage } from "@/components/pages/ServicesPage";
+import { TestimonialsPage } from "@/components/pages/TestimonialsPage";
+import { useGlobalButtonMotion } from "@/hooks/useGlobalButtonMotion";
+import { useRevealAnimations } from "@/hooks/useRevealAnimations";
+
+gsap.registerPlugin(ScrollTrigger);
+
+function FooterRevealCurve() {
+  return (
+    <div aria-hidden="true" className="relative z-20 h-0">
+      <div
+        data-footer-rounded-wrap
+        className="relative h-[10vh] w-full -translate-y-px overflow-hidden"
+      >
+        <div className="absolute left-1/2 top-0 h-[220%] w-[150%] -translate-x-1/2 -translate-y-[54.5%] rounded-[50%] bg-white sm:h-[350%] sm:-translate-y-[71.4%] lg:h-[625%] lg:-translate-y-[84%] xl:h-[750%] xl:-translate-y-[86.666%]" />
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const rootRef = useRevealAnimations<HTMLDivElement>();
+  useGlobalButtonMotion();
+  const footerRevealSpacerRef = useRef<HTMLDivElement>(null);
+  const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  const isServicesRoute = currentPath === "/services";
+  const isAboutRoute = currentPath === "/about";
+  const isProjectsRoute = currentPath === "/projects";
+  const projectDetailMatch = currentPath.match(/^\/projects\/([^/]+)$/);
+  const projectSlug = projectDetailMatch ? decodeURIComponent(projectDetailMatch[1]) : null;
+  const isTestimonialsRoute = currentPath === "/testimonials";
+  const isContactRoute = currentPath === "/contact";
+
+  useEffect(() => {
+    if (!isContactRoute) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo(0, document.documentElement.scrollHeight);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isContactRoute]);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const lenis = new Lenis({
+      duration: 1.1,
+      smoothWheel: true,
+      anchors: true,
+    });
+    const updateScrollTrigger = () => ScrollTrigger.update();
+    const updateLenis = (time: number) => lenis.raf(time * 1000);
+
+    lenis.on("scroll", updateScrollTrigger);
+    gsap.ticker.add(updateLenis);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(updateLenis);
+      gsap.ticker.lagSmoothing(500, 33);
+      lenis.off("scroll", updateScrollTrigger);
+      lenis.destroy();
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const hero = root?.querySelector<HTMLElement>("main > section:first-child");
+    const sections = root
+      ? Array.from(
+          root.querySelectorAll<HTMLElement>(
+            "main > section:not(:first-child)",
+          ),
+        )
+      : [];
+
+    if (
+      !root ||
+      !hero ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    const context = gsap.context(() => {
+      gsap.set(hero, { zIndex: 0, isolation: "isolate" });
+
+      ScrollTrigger.create({
+        trigger: hero,
+        start: "top top",
+        end: "bottom top",
+        pin: true,
+        pinSpacing: false,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      });
+
+      sections.forEach((section) => {
+        gsap.set(section, {
+          position: "relative",
+          zIndex: 1,
+          isolation: "isolate",
+        });
+
+        if (section.querySelector("[data-reveal], [data-reveal-stagger]")) {
+          return;
+        }
+
+        const content = section.firstElementChild;
+
+        if (content instanceof HTMLElement) {
+          gsap.fromTo(
+            content,
+            { y: 48 },
+            {
+              y: 0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "top 72%",
+                scrub: 0.8,
+                invalidateOnRefresh: true,
+              },
+            },
+          );
+        }
+      });
+    }, root);
+
+    ScrollTrigger.refresh();
+
+    return () => context.revert();
+  }, [rootRef]);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const spacer = footerRevealSpacerRef.current;
+    const footer = root?.querySelector<HTMLElement>("[data-site-footer]");
+    const footerContent = footer?.querySelector<HTMLElement>(
+      ":scope > div.relative",
+    );
+    const roundedReveal = root?.querySelector<HTMLElement>(
+      "[data-footer-rounded-wrap]",
+    );
+
+    if (!root || !spacer || !footer || !footerContent || !roundedReveal) {
+      return;
+    }
+
+    const media = gsap.matchMedia();
+
+    media.add("all", () => {
+      footer.style.pointerEvents = "none";
+
+      if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        footer.style.pointerEvents = "auto";
+        return;
+      }
+
+      const reveal = gsap.timeline({
+        scrollTrigger: {
+          trigger: spacer,
+          start: "top bottom",
+          end: "bottom bottom",
+          scrub: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            footer.style.pointerEvents =
+              self.progress > 0.92 ? "auto" : "none";
+          },
+        },
+      });
+
+      reveal.fromTo(
+        footer,
+        { y: 60 },
+        { y: 0, ease: "none" },
+        0,
+      );
+      reveal.fromTo(
+        footerContent,
+        { y: "10vh" },
+        { y: 0, ease: "none" },
+        0,
+      );
+      reveal.fromTo(
+        roundedReveal,
+        { height: "10vh" },
+        { height: 0, ease: "none" },
+        0,
+      );
+    });
+
+    ScrollTrigger.refresh();
+
+    return () => media.revert();
+  }, [rootRef]);
+
+  return (
+    <div ref={rootRef} className="relative isolate w-full">
+      {isServicesRoute ? (
+        <ServicesPage />
+      ) : isAboutRoute ? (
+        <AboutPage />
+      ) : isProjectsRoute ? (
+        <ProjectsPage />
+      ) : projectSlug ? (
+        <ProjectDetailPage slug={projectSlug} />
+      ) : isTestimonialsRoute ? (
+        <TestimonialsPage />
+      ) : (
+        <>
+          <main className="relative z-10 w-full bg-white">
+            <Hero />
+            <Brands />
+            <About />
+            <Services />
+            <Announcement />
+            <FAQContact />
+            <AgencyMarquee />
+          </main>
+        </>
+      )}
+      <FooterRevealCurve />
+      <div
+        ref={footerRevealSpacerRef}
+        aria-hidden="true"
+        className="h-dvh"
+      />
+      <Footer />
+    </div>
+  );
+}

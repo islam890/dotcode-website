@@ -1,0 +1,10 @@
+{
+  "description": "Delivers a fully responsive agency website preserving original design, images, and content to showcase services professionally across devices.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
