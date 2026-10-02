@@ -780,13 +780,13 @@ export default function Header() {
       <header ref={navbarRef} className="relative z-[30] flex flex-wrap items-center justify-between gap-3 px-3 pb-3 pt-4 sm:px-8 lg:px-10 xl:pt-8">
         <div className="flex items-center gap-3 sm:gap-6 lg:gap-12">
           <div className="flex items-center">
-            <div className="h-[32px] w-[59px] shrink-0 sm:h-[38px] sm:w-[70px] lg:h-[42px] lg:w-[77px]">
+            <a href="/" aria-label="DotCode home" className="block h-[32px] w-[59px] shrink-0 sm:h-[38px] sm:w-[70px] lg:h-[42px] lg:w-[77px]">
               <img
                 alt="DotCode"
                 className="size-full object-contain"
                 src={images.group61}
               />
-            </div>
+            </a>
           </div>
 
           <nav
