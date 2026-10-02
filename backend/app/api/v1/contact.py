@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import ContactMessage, Admin
-from app.schemas.contact import (
+from app.schema.contact import (
     ContactMessageCreate,
     ContactMessageUpdate,
     ContactMessageResponse

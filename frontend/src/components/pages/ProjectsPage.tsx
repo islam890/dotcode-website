@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { conceptProjects, type Project } from "@/data/projects";
+import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 type LoadState = "loading" | "ready" | "error";
 
@@ -126,24 +127,10 @@ export function ProjectsPage() {
     });
   };
 
-  useEffect(() => {
-    const previousTitle = document.title;
-    const description = document.querySelector<HTMLMetaElement>(
-      'meta[name="description"]',
-    );
-    const previousDescription = description?.content;
-    document.title = "Our Projects | DotCode";
-    if (description) {
-      description.content =
-        "Explore DotCode projects across digital products, software, websites, applications and AI solutions.";
-    }
-    return () => {
-      document.title = previousTitle;
-      if (description && previousDescription !== undefined) {
-        description.content = previousDescription;
-      }
-    };
-  }, []);
+  usePageMetadata(
+    "Our Projects | DotCode",
+    "Explore DotCode projects across digital products, software, websites, applications and AI solutions.",
+  );
 
   useEffect(() => {
     const controller = new AbortController();

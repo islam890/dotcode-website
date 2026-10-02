@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
+import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 const services = [
   {
@@ -79,6 +80,11 @@ const process = [
 ] as const;
 
 export function ServicesPage() {
+  usePageMetadata(
+    "Services | DotCode",
+    "Explore DotCode's web, mobile, SaaS, software and AI services, from product strategy and design through development and launch.",
+  );
+
   return (
     <>
       <main className="relative z-10 w-full bg-white">
@@ -131,7 +137,7 @@ export function ServicesPage() {
                   <h3 className="relative col-span-9 font-sora text-[clamp(1.45rem,4vw,2rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-black transition-transform duration-300 group-hover:translate-x-0.5 md:col-span-4">{service.title}</h3>
                   <p className="relative col-span-9 col-start-2 font-inter text-[13px] leading-[1.55] text-black/55 sm:text-sm md:col-span-4 md:col-start-6">{service.description}</p>
                   <div className="relative col-span-9 col-start-2 flex flex-wrap gap-x-4 gap-y-1.5 md:col-span-2 md:col-start-10 md:gap-x-3">{service.tags.map((tag) => <span key={tag} className="font-inter text-[9px] font-semibold uppercase tracking-[0.1em] text-black/35 sm:text-[10px]">{tag}</span>)}</div>
-                  <a href="/#contact" aria-label={`Ask about ${service.title}`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
+                  <a href="/contact" aria-label={`Ask about ${service.title}`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
                     <ArrowUpRight aria-hidden="true" className="size-4" />
                   </a>
                 </article>
@@ -153,7 +159,7 @@ export function ServicesPage() {
                 <span className="relative col-span-1 pt-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{item.number}</span>
                 <h3 className="relative col-span-9 font-sora text-[clamp(1.35rem,3vw,2rem)] font-semibold tracking-[-0.05em] text-black md:col-span-4">{item.title}</h3>
                 <ul className="relative col-span-9 col-start-2 flex flex-wrap gap-x-4 gap-y-2 md:col-span-6 md:col-start-6 md:gap-x-6">{item.items.map((detail) => <li key={detail} className="font-inter text-[10px] uppercase tracking-[0.12em] text-black/40 sm:text-[11px]">{detail}</li>)}</ul>
-                <a href="/#contact" aria-label={`Ask about ${item.title}`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
+                <a href="/contact" aria-label={`Ask about ${item.title}`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
                   <ArrowUpRight aria-hidden="true" className="size-4" />
                 </a>
               </article>)}

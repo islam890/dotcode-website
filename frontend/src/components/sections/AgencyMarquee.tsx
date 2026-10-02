@@ -16,6 +16,7 @@ export function AgencyMarquee() {
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const measureLoop = () => {
       const track = trackRef.current;
 
@@ -95,6 +96,30 @@ export function AgencyMarquee() {
         requestAnimationFrame(animate);
     };
 
+    const startAnimation = () => {
+      if (motionPreference.matches || animationFrameRef.current !== null) return;
+      previousScrollY.current = window.scrollY;
+      animationFrameRef.current = requestAnimationFrame(animate);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+    };
+
+    const stopAnimation = () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+
+    const handleMotionPreferenceChange = () => {
+      if (motionPreference.matches) {
+        stopAnimation();
+      } else {
+        measureLoop();
+        startAnimation();
+      }
+    };
+
     previousScrollY.current = window.scrollY;
 
     measureLoop();
@@ -107,21 +132,13 @@ export function AgencyMarquee() {
       resizeObserver.observe(trackRef.current);
     }
 
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    });
-
-    animationFrameRef.current =
-      requestAnimationFrame(animate);
+    startAnimation();
+    motionPreference.addEventListener("change", handleMotionPreferenceChange);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-
+      stopAnimation();
+      motionPreference.removeEventListener("change", handleMotionPreferenceChange);
       resizeObserver.disconnect();
-
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
     };
   }, []);
 

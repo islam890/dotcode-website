@@ -78,6 +78,7 @@ export default function Header() {
 
   const navbarRef = useRef<HTMLElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const menuReturnFocusRef = useRef<HTMLElement | null>(null);
   const menuLineTopRef = useRef<HTMLSpanElement | null>(null);
   const menuLineBottomRef = useRef<HTMLSpanElement | null>(null);
 
@@ -656,6 +657,12 @@ export default function Header() {
       return;
     }
 
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      menuTimeline.progress(menuOpen ? 1 : 0).pause();
+      buttonTimeline.progress(menuOpen ? 1 : 0).pause();
+      return;
+    }
+
     if (menuOpen) {
       buttonTimeline.timeScale(1).play();
       menuTimeline.timeScale(1).play();
@@ -675,6 +682,60 @@ export default function Header() {
       menuTimeline.timeScale(1.24).reverse();
       buttonTimeline.timeScale(1.24).reverse();
     }
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      if (menuReturnFocusRef.current?.isConnected) {
+        menuReturnFocusRef.current.focus();
+      }
+      return;
+    }
+
+    menuReturnFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : menuButtonRef.current;
+
+    const getFocusableElements = () => {
+      const candidates = [
+        menuButtonRef.current,
+        ...(menuPanelRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? []),
+      ];
+      return candidates.filter((element): element is HTMLElement => element !== null && element.tabIndex >= 0);
+    };
+
+    const firstMenuLink = menuLinksRef.current.find((link) => link?.isConnected);
+    (firstMenuLink ?? menuPanelRef.current)?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const activeIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+      const lastIndex = focusableElements.length - 1;
+      if (event.shiftKey && activeIndex === 0) {
+        event.preventDefault();
+        focusableElements[lastIndex].focus();
+      } else if (!event.shiftKey && (activeIndex === lastIndex || activeIndex === -1)) {
+        event.preventDefault();
+        focusableElements[0].focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
 
   useEffect(() => {
@@ -822,7 +883,7 @@ export default function Header() {
 
           <div className="flex items-center gap-0">
             <a
-              href="/#contact"
+              href="/contact"
               className="flex items-center justify-center rounded-full bg-[#b7ff3c] px-2.5 py-[8px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.08em] text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c] sm:px-3 sm:py-[10px] sm:text-[9px]! lg:text-[10px]!"
             >
               Contact us
@@ -888,6 +949,7 @@ export default function Header() {
               }}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
+              aria-controls="site-menu-panel"
               className={`fixed right-4 top-4 z-[210] flex h-[68px] w-[68px] items-center justify-center rounded-full border border-white/15 bg-[#0A0A0A] shadow-[0_12px_32px_rgba(0,0,0,0.14)] md:right-6 md:top-6 md:h-[76px] md:w-[76px] ${hasScrolled ? "" : "hidden"}`}
             >
               <span className="relative block h-4 w-6">
@@ -905,6 +967,7 @@ export default function Header() {
 
             <aside
               ref={menuPanelRef}
+              id="site-menu-panel"
               className={`fixed right-0 top-0 z-[205] h-dvh w-[min(92vw,560px)] overflow-hidden bg-[#0A0A0A] text-white sm:w-[min(560px,58vw)] md:w-[min(500px,62vw)] lg:w-[min(740px,40vw)] ${
                 menuOpen
                   ? "pointer-events-auto"
@@ -913,6 +976,7 @@ export default function Header() {
               aria-hidden={!menuOpen}
               aria-modal={menuOpen}
               role="dialog"
+              tabIndex={-1}
               inert={!menuOpen}
             >
               <div className="h-full min-h-dvh overflow-y-auto overscroll-contain flex flex-col justify-between md:justify-start px-6 pb-16 pt-20 md:px-10 md:pb-16 md:pt-20 lg:justify-between lg:px-16">

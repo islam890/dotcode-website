@@ -2,6 +2,7 @@
 import { ArrowDown } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
+import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 
 type Testimonial = {
@@ -162,24 +163,10 @@ export function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [state, setState] = useState<LoadState>("loading");
 
-  useEffect(() => {
-    const previousTitle = document.title;
-    const description = document.querySelector<HTMLMetaElement>(
-      'meta[name="description"]',
-    );
-    const previousDescription = description?.content;
-    document.title = "Testimonials | DotCode";
-    if (description) {
-      description.content =
-        "Client feedback and experiences from projects built with DotCode.";
-    }
-    return () => {
-      document.title = previousTitle;
-      if (description && previousDescription !== undefined) {
-        description.content = previousDescription;
-      }
-    };
-  }, []);
+  usePageMetadata(
+    "Testimonials | DotCode",
+    "Client feedback and experiences from projects built with DotCode.",
+  );
 
   useEffect(() => {
     const controller = new AbortController();

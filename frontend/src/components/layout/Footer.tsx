@@ -152,12 +152,14 @@ export function Footer() {
                   type="email"
                   aria-label="Email address"
                   placeholder="your@email.com"
+                  disabled
                   className="min-w-0 flex-1 bg-transparent px-3 font-sora text-[12px] text-white placeholder:text-white/30 focus:outline-none sm:px-4 sm:text-[13px]"
                 />
 
                 <button
                   type="submit"
-                  className="flex h-full shrink-0 items-center justify-center rounded-full bg-[#b7ff3c] px-4 font-inter text-[9px]! font-extrabold! uppercase tracking-[0.06em] text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#c4ff62] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c] sm:px-5 sm:text-[10px]!"
+                  disabled
+                  className="flex h-full shrink-0 items-center justify-center rounded-full bg-[#b7ff3c] px-4 font-inter text-[9px]! font-extrabold! uppercase tracking-[0.06em] text-black disabled:cursor-not-allowed disabled:opacity-60 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#c4ff62] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c] sm:px-5 sm:text-[10px]!"
                 >
                   Send
                 </button>
@@ -165,12 +167,9 @@ export function Footer() {
 
               <p className="font-sora text-[12px] leading-[1.3] sm:text-[13px]">
                 <span className="text-[#8d8d8d]">
-                  By subscribing, you&rsquo;re accept our{" "}
+                  Newsletter sign-ups are currently unavailable.{" "}
                 </span>
-
-                <span className="font-semibold uppercase underline">
-                  privacy policy
-                </span>
+                <span className="font-semibold uppercase underline">privacy policy</span>
               </p>
             </form>
           </div>

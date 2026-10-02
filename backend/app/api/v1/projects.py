@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Project, Admin
-from app.schemas.project import (
+from app.schema.project import (
     ProjectCreate,
     ProjectUpdate,
     ProjectResponse

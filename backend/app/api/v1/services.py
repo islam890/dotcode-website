@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Service, Admin
-from app.schemas.services import (
+from app.schema.services import (
     ServiceCreate,
     ServiceUpdate,
     ServiceResponse

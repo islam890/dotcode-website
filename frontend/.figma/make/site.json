@@ -1,5 +1,6 @@
 {
-  "description": "Delivers a fully responsive agency website preserving original design, images, and content to showcase services professionally across devices.",
+  "title": "DotCode Agency",
+  "description": "DotCode Agency builds digital products, AI solutions, and modern software experiences from idea to launch.",
   "robots": {
     "index": false
   },

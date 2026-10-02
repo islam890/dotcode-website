@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight, RotateCw } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { conceptProjects, type Project } from "@/data/projects";
+import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 type LoadState = "loading" | "ready" | "not-found" | "error";
 
@@ -77,19 +78,10 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
     return () => controller.abort();
   }, [slug]);
 
-  useEffect(() => {
-    const previousTitle = document.title;
-    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousDescription = description?.content;
-    if (project) {
-      document.title = `${project.title} | DotCode Projects`;
-      if (description) description.content = project.short_description;
-    }
-    return () => {
-      document.title = previousTitle;
-      if (description && previousDescription !== undefined) description.content = previousDescription;
-    };
-  }, [project]);
+  usePageMetadata(
+    project ? `${project.title} | DotCode Projects` : null,
+    project?.short_description ?? null,
+  );
 
   const nextProject = useMemo(() => {
     if (!project || projects.length < 2) return null;

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Testimonial, Admin
-from app.schemas.testimonials import (
+from app.schema.testimonials import (
     TestimonialCreate,
     TestimonialUpdate,
     TestimonialResponse

@@ -12,8 +12,9 @@ class ProjectResponse(BaseModel):
     description: str
     category: str
     client_name: str | None
-    project_url: HttpUrl | None
-    github_url: HttpUrl | None
+    # Stored rows may contain legacy values; keep GET responses serializable.
+    project_url: str | None
+    github_url: str | None
     featured: bool
     published: bool
     created_at: datetime

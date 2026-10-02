@@ -1,7 +1,7 @@
-import { useEffect } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
+import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 const principles = [
   {
@@ -45,26 +45,10 @@ const approach = [
 ] as const;
 
 export function AboutPage() {
-  useEffect(() => {
-    const previousTitle = document.title;
-    const description = document.querySelector<HTMLMetaElement>(
-      'meta[name="description"]',
-    );
-    const previousDescription = description?.content;
-
-    document.title = "About Us | DotCode";
-    if (description) {
-      description.content =
-        "DotCode is a software and AI agency building thoughtful digital products, websites and applications from idea to launch.";
-    }
-
-    return () => {
-      document.title = previousTitle;
-      if (description && previousDescription !== undefined) {
-        description.content = previousDescription;
-      }
-    };
-  }, []);
+  usePageMetadata(
+    "About Us | DotCode",
+    "DotCode is a software and AI agency building thoughtful digital products, websites and applications from idea to launch.",
+  );
 
   return (
     <>

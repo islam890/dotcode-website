@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { Footer } from "@/components/layout/Footer";
+import { PageTransition } from "@/components/layout/PageTransition";
 import { AgencyMarquee } from "@/components/sections/AgencyMarquee";
 import { About } from "@/components/sections/About";
 import { Announcement } from "@/components/sections/Announcement";
@@ -11,6 +12,8 @@ import { Brands } from "@/components/sections/Brands";
 import { Hero } from "@/components/sections/Hero";
 import { Services } from "@/components/sections/Services";
 import { AboutPage } from "@/components/pages/AboutPage";
+import { ContactPage } from "@/components/pages/ContactPage";
+import { NotFoundPage } from "@/components/pages/NotFoundPage";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
 import { ProjectDetailPage } from "@/components/pages/ProjectDetailPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
@@ -42,19 +45,24 @@ export default function App() {
   const isAboutRoute = currentPath === "/about";
   const isProjectsRoute = currentPath === "/projects";
   const projectDetailMatch = currentPath.match(/^\/projects\/([^/]+)$/);
-  const projectSlug = projectDetailMatch ? decodeURIComponent(projectDetailMatch[1]) : null;
+  let projectSlug: string | null = null;
+  if (projectDetailMatch) {
+    try {
+      projectSlug = decodeURIComponent(projectDetailMatch[1]);
+    } catch {
+      projectSlug = null;
+    }
+  }
   const isTestimonialsRoute = currentPath === "/testimonials";
   const isContactRoute = currentPath === "/contact";
-
-  useEffect(() => {
-    if (!isContactRoute) return;
-
-    const frame = window.requestAnimationFrame(() => {
-      window.scrollTo(0, document.documentElement.scrollHeight);
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [isContactRoute]);
+  const isNotFoundRoute =
+    currentPath !== "/" &&
+    !isServicesRoute &&
+    !isAboutRoute &&
+    !isProjectsRoute &&
+    !projectSlug &&
+    !isTestimonialsRoute &&
+    !isContactRoute;
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -94,6 +102,8 @@ export default function App() {
 
     if (
       !root ||
+      isContactRoute ||
+      isNotFoundRoute ||
       !hero ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
@@ -149,7 +159,7 @@ export default function App() {
     ScrollTrigger.refresh();
 
     return () => context.revert();
-  }, [rootRef]);
+  }, [rootRef, isContactRoute, isNotFoundRoute]);
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -223,12 +233,16 @@ export default function App() {
         <ServicesPage />
       ) : isAboutRoute ? (
         <AboutPage />
+      ) : isContactRoute ? (
+        <ContactPage />
       ) : isProjectsRoute ? (
         <ProjectsPage />
       ) : projectSlug ? (
         <ProjectDetailPage slug={projectSlug} />
       ) : isTestimonialsRoute ? (
         <TestimonialsPage />
+      ) : isNotFoundRoute ? (
+        <NotFoundPage />
       ) : (
         <>
           <main className="relative z-10 w-full bg-white">
@@ -249,6 +263,7 @@ export default function App() {
         className="h-dvh"
       />
       <Footer />
+      <PageTransition />
     </div>
   );
 }
