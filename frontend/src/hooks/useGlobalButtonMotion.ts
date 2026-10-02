@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const buttonSelector = [
-  "button:not(:disabled):not([aria-label='Open menu']):not([aria-label='Close menu'])",
+  "button:not(:disabled):not([aria-label='Open menu']):not([aria-label='Close menu']):not([data-language-selector]):not([data-language-option])",
   "a.rounded-full:not([href='/#contact']):not([href='/contact']):not([href^='tel:'])",
   'a[data-anim="hero-cta"]',
   'a[data-footer-social-link]',

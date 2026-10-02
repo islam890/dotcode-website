@@ -832,11 +832,12 @@ export default function Header() {
           <div className="relative z-[80]">
             <button
               type="button"
+              data-language-selector
               aria-expanded={languageOpen}
               onClick={() =>
                 setLanguageOpen((open) => !open)
               }
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/10 sm:px-3"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-white backdrop-blur-sm transition-colors duration-200 sm:px-3"
             >
               <img
                 src={selectedLanguage.flag}
@@ -862,6 +863,7 @@ export default function Header() {
                   <button
                     key={language.code}
                     type="button"
+                    data-language-option
                     onClick={() =>
                       handleLanguageSelect(language)
                     }

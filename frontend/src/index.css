@@ -88,10 +88,6 @@ button {
   background-color: rgba(10, 10, 10, 0.035);
 }
 
-[data-light-page-header] header > div:nth-child(3) > div:first-child > button:hover {
-  background-color: rgba(10, 10, 10, 0.08);
-}
-
 ::selection {
   background: rgba(163, 230, 53, 0.35);
 }
