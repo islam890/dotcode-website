@@ -70,6 +70,7 @@ function getDateTime() {
 }
 
 export default function Header() {
+  const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
   const [dateTime, setDateTime] = useState(getDateTime);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -792,20 +793,28 @@ export default function Header() {
             aria-label="Main navigation"
             className="hidden items-center gap-4 font-inter text-[14px] font-medium capitalize text-white/90 lg:flex xl:gap-6 xl:text-[16px]"
           >
-            {navLinks.map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                className="relative whitespace-nowrap transition-all duration-200 hover:text-white"
-              >
-                <span
-                  data-nav-magnetic-link
-                  className="after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-white/80 after:transition-transform after:duration-200 hover:after:scale-x-100"
+            {navLinks.map(({ label, href }) => {
+              const isCurrentPage = href === currentPath ||
+                (href === "/projects" && currentPath.startsWith("/projects/"));
+
+              return (
+                <a
+                  key={label}
+                  href={href}
+                  aria-current={isCurrentPage ? "page" : undefined}
+                  className="relative whitespace-nowrap transition-all duration-200 hover:text-white"
                 >
-                  {label}
-                </span>
-              </a>
-            ))}
+                  <span
+                    data-nav-magnetic-link
+                    className={`after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:bg-white/80 after:transition-transform after:duration-200 hover:after:scale-x-100 ${
+                      isCurrentPage ? "after:scale-x-100" : "after:scale-x-0"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </a>
+              );
+            })}
           </nav>
         </div>
 
