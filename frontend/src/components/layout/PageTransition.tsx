@@ -2,6 +2,7 @@
 import { createPortal } from "react-dom";
 
 const storageKey = "dotcode-page-transition";
+const visitedKey = "dotcode-page-transition-visited";
 const transitionDuration = 760;
 
 type TransitionState = {
@@ -21,20 +22,40 @@ function readIncomingTransition(): TransitionState {
       const age = typeof parsed.createdAt === "number"
         ? Date.now() - parsed.createdAt
         : Number.POSITIVE_INFINITY;
+      const incomingLabel = typeof parsed.label === "string" ? parsed.label : null;
+      const navigationEntry = performance.getEntriesByType(
+        "navigation",
+      )[0] as PerformanceNavigationTiming | undefined;
+      const hasFreshClickNavigation =
+        incomingLabel !== null &&
+        typeof parsed.destinationPath === "string" &&
+        normalizePath(parsed.destinationPath) === normalizePath(window.location.pathname) &&
+        (navigationEntry?.type === "navigate" || navigationEntry?.type === "reload") &&
+        age >= 0 &&
+        age < 12000;
+      if (hasFreshClickNavigation) {
+        return { label: incomingLabel!, phase: "covered" };
+      }
+
+      if (
+        navigationEntry?.type === "back_forward" &&
+        window.sessionStorage.getItem(visitedKey) === "1"
+      ) {
+        window.sessionStorage.removeItem(storageKey);
+        return { label: pageLabel(window.location.pathname), phase: "covered" };
+      }
+
+      window.sessionStorage.removeItem(storageKey);
+    } else {
       const navigationEntry = performance.getEntriesByType(
         "navigation",
       )[0] as PerformanceNavigationTiming | undefined;
       if (
-        typeof parsed.label === "string" &&
-        typeof parsed.destinationPath === "string" &&
-        normalizePath(parsed.destinationPath) === normalizePath(window.location.pathname) &&
-        navigationEntry?.type === "navigate" &&
-        age >= 0 &&
-        age < 12000
+        navigationEntry?.type === "back_forward" &&
+        window.sessionStorage.getItem(visitedKey) === "1"
       ) {
-        return { label: parsed.label, phase: "covered" };
+        return { label: pageLabel(window.location.pathname), phase: "covered" };
       }
-      window.sessionStorage.removeItem(storageKey);
     }
   } catch {
     // Continue rendering normally if session storage is unavailable.
@@ -106,6 +127,12 @@ export function PageTransition() {
   }, [transition.phase]);
 
   useEffect(() => {
+    try {
+      window.sessionStorage.setItem(visitedKey, "1");
+    } catch {
+      // Page transitions continue to work without session storage.
+    }
+
     const handleDocumentClick = (event: MouseEvent) => {
       if (
         event.defaultPrevented ||
@@ -139,10 +166,12 @@ export function PageTransition() {
         return;
       }
 
-      if (
-        destination.origin !== window.location.origin ||
-        normalizePath(destination.pathname) === normalizePath(window.location.pathname)
-      ) {
+      if (destination.origin !== window.location.origin) return;
+
+      const samePath = normalizePath(destination.pathname) === normalizePath(window.location.pathname);
+      const samePageTargetChanged =
+        destination.search !== window.location.search || destination.hash !== window.location.hash;
+      if (samePath && samePageTargetChanged) {
         return;
       }
 
@@ -179,8 +208,16 @@ export function PageTransition() {
     };
 
     document.addEventListener("click", handleDocumentClick, true);
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      navigationPendingRef.current = false;
+      setTransition({ label: pageLabel(window.location.pathname), phase: "covered" });
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
     return () => {
       document.removeEventListener("click", handleDocumentClick, true);
+      window.removeEventListener("pageshow", handlePageShow);
       if (navigationTimerRef.current !== null) {
         window.clearTimeout(navigationTimerRef.current);
       }
