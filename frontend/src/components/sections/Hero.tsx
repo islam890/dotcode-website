@@ -60,20 +60,23 @@ export function Hero() {
                 data-anim="hero-cta"
                 className="flex flex-wrap items-center justify-center gap-2 sm:gap-3"
               >
-                <button
-                  type="button"
+                <a
+                  href="/work"
                   className="rounded-full border border-white/30 bg-white/5 px-3 py-[9px] font-inter text-[9px]! font-extrabold! uppercase tracking-[0.04em] text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4 sm:py-[11px] sm:text-[10px]! md:text-[11px]!"
                 >
                   view our work
-                </button>
+                </a>
 
-                <div className="group flex items-center gap-0">
-                  <button
-                    type="button"
-                    className="flex items-center justify-center rounded-full bg-[#b7ff3c] px-2.5 py-[8px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.08em] text-black transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-[#c4ff62] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c] sm:px-3 sm:py-[10px] sm:text-[9px]! md:text-[10px]!"
+                <a
+                  href="#contact"
+                  data-no-page-transition
+                  className="group inline-flex items-center gap-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c]"
+                >
+                  <span
+                    className="flex items-center justify-center rounded-full bg-[#b7ff3c] px-2.5 py-[8px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.08em] text-black transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-[#c4ff62] sm:px-3 sm:py-[10px] sm:text-[9px]! md:text-[10px]!"
                   >
                     get started
-                  </button>
+                  </span>
 
                   <div
                     aria-hidden="true"
@@ -84,7 +87,7 @@ export function Hero() {
                       aria-hidden="true"
                     />
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </div>

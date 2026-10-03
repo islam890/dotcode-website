@@ -72,7 +72,6 @@ function pageLabel(pathname: string): string {
     "/about": "About Us",
     "/projects": "Our Projects",
     "/testimonials": "Testimonials",
-    "/contact": "Contact",
   };
 
   if (labels[path]) return labels[path];

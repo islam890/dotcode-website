@@ -156,6 +156,8 @@ export function About() {
                     alt=""
                     className="absolute inset-0 size-full object-cover"
                     src={images.rectangle35}
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
@@ -163,6 +165,8 @@ export function About() {
                   alt=""
                   className="absolute bottom-0 right-0 z-10 h-[150%] object-contain"
                   src={images.image11}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
 
@@ -213,6 +217,8 @@ export function About() {
                       alt=""
                       className="size-full object-cover"
                       src={avatar}
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 ))}

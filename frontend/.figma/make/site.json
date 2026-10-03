@@ -2,7 +2,7 @@
   "title": "DotCode Agency",
   "description": "DotCode Agency builds digital products, AI solutions, and modern software experiences from idea to launch.",
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

@@ -9,7 +9,12 @@ from app.core.exceptions import global_exception_handler
 from app.core.limiter import limiter
 
 
-app = FastAPI(title=settings.app_name)
+app = FastAPI(
+    title=settings.app_name,
+    docs_url="/docs" if settings.api_docs_enabled else None,
+    redoc_url="/redoc" if settings.api_docs_enabled else None,
+    openapi_url="/openapi.json" if settings.api_docs_enabled else None,
+)
 
 app.add_exception_handler(
     Exception, 
@@ -23,9 +28,7 @@ app.add_exception_handler(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000"
-    ],
+    allow_origins=settings.allowed_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

@@ -20,7 +20,12 @@ router = APIRouter(
 # --- Get all testimonials
 @router.get("/", response_model=list[TestimonialResponse])
 def get_all_testimonials(db: Session = Depends(get_db)):
-    testimonials = db.query(Testimonial).all()
+    testimonials = (
+        db.query(Testimonial)
+        .filter(Testimonial.published.is_(True))
+        .order_by(Testimonial.created_at.desc(), Testimonial.id.desc())
+        .all()
+    )
 
     return testimonials
 
@@ -29,7 +34,8 @@ def get_all_testimonials(db: Session = Depends(get_db)):
 @router.get("/{id}", response_model=TestimonialResponse)
 def get_testimonial(id: int, db: Session = Depends(get_db)):
     testimonial = db.query(Testimonial).filter(
-        Testimonial.id == id
+        Testimonial.id == id,
+        Testimonial.published.is_(True),
     ).first()
 
     if not testimonial:

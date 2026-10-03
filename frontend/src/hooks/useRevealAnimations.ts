@@ -33,17 +33,21 @@ export function useRevealAnimations<T extends HTMLElement>() {
           '[data-anim="hero-cta"]',
           { y: 20, opacity: 0, duration: 0.7 },
           "-=0.5",
-        )
-        .from(
-          '[data-anim="hero-object"]',
+        );
+
+      const heroObject = self.selector!('[data-anim="hero-object"]');
+      if (heroObject.length) {
+        heroTimeline.from(
+          heroObject,
           { y: 60, opacity: 0, scale: 0.96, duration: 1 },
           "-=0.4",
-        )
-        .from(
-          '[data-anim="hero-rating"]',
-          { opacity: 0, duration: 0.6 },
-          "-=0.4",
         );
+      }
+
+      const heroRating = self.selector!('[data-anim="hero-rating"]');
+      if (heroRating.length) {
+        heroTimeline.from(heroRating, { opacity: 0, duration: 0.6 }, "-=0.4");
+      }
 
       self.selector!("[data-reveal]").forEach((element: Element) => {
         gsap.from(element, {

@@ -4,7 +4,6 @@ export function Announcement() {
   return (
     <section
       id="announcement"
-      aria-hidden="true"
       className="bg-white px-3 py-3 sm:px-5 sm:py-4 lg:px-6 lg:py-5"
     >
       <div className="relative mx-auto aspect-[2.6] w-full max-w-[1530px] sm:aspect-[1.7] md:aspect-[2.4] lg:aspect-[3.7]">
@@ -51,12 +50,13 @@ export function Announcement() {
             </p>
           </div>
         </div>
-        <button
-          type="button"
+        <a
+          href="#contact"
+          data-no-page-transition
           className="absolute bottom-[10%] left-[2%] z-10 flex w-fit items-center justify-center whitespace-nowrap rounded-full bg-[#2563eb] px-1.5 py-[3px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.05em] text-white shadow-[0_14px_30px_rgba(37,99,235,0.25)] transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb] sm:bottom-[5%] sm:px-3.5 sm:py-2 sm:text-[11px]! md:px-4 md:py-[9px] md:text-[12px]! lg:text-[15px]!"
         >
           START YOUR PROJECT
-        </button>
+        </a>
       </div>
     </section>
   );

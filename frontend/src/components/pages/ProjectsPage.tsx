@@ -1,17 +1,19 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { ArrowDown, ArrowUpRight, LayoutGrid, List, RotateCw } from "lucide-react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
+import { getProjects } from "@/api/projects";
 import { conceptProjects, type Project } from "@/data/projects";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 type LoadState = "loading" | "ready" | "error";
 
-const apiBase = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+gsap.registerPlugin(ScrollTrigger);
 
 function projectRoute(slug: string) {
-  return `/projects/${encodeURIComponent(slug)}`;
+  return `/work/${encodeURIComponent(slug)}`;
 }
 
 function orderProjects(projects: Project[]) {
@@ -136,31 +138,32 @@ export function ProjectsPage() {
     const controller = new AbortController();
     setState("loading");
 
-    fetch(`${apiBase}/projects/`, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Projects request failed (${response.status}).`);
-        const payload: unknown = await response.json();
-        if (!Array.isArray(payload)) throw new Error("The projects response was not a list.");
-        return (payload as Project[]).filter((project) => project.published);
-      })
+    getProjects(controller.signal)
       .then((publishedProjects) => {
         setProjects(orderProjects([...publishedProjects, ...conceptProjects]));
         setState("ready");
       })
       .catch(() => {
         if (controller.signal.aborted) return;
-        setProjects(conceptProjects);
-        setState("ready");
+        setProjects(orderProjects(conceptProjects));
+        setState("error");
       });
 
     return () => controller.abort();
   }, [requestKey]);
+
+  useEffect(() => {
+    if (state !== "ready" && state !== "error") return;
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [projects, state]);
 
   const categories = ["ALL", "DESIGN", "DEVELOPMENT"];
   const visibleProjects = useMemo(
     () => projects.filter((project) => matchesCategory(project, activeCategory)),
     [activeCategory, projects],
   );
+  const canShowProjects = state === "ready" || state === "error";
 
   useLayoutEffect(() => {
     if (!didFilterRef.current) {
@@ -213,7 +216,7 @@ export function ProjectsPage() {
               <p className="max-w-[330px] font-inter text-sm leading-relaxed text-black/55 md:col-span-4 md:justify-self-end">Digital work made with care, intention and a clear reason to exist.</p>
             </div>
 
-            {state === "ready" && projects.length > 0 && (
+            {canShowProjects && projects.length > 0 && (
               <div className="mb-8 flex flex-wrap items-center justify-between gap-5 sm:mb-12">
                 <nav aria-label="Filter projects by category" className="flex flex-wrap gap-2 sm:gap-3">
                   {categories.map((category) => {
@@ -251,7 +254,7 @@ export function ProjectsPage() {
 
             {state === "ready" && projects.length > 0 && visibleProjects.length === 0 && <div className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">No projects in this category yet.</div>}
 
-            {state === "ready" && visibleProjects.length > 0 && (
+            {canShowProjects && visibleProjects.length > 0 && (
               <div ref={listRef} className="relative">
                 {viewMode === "list" ? (
                   <>

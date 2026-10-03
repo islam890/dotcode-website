@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ApiError } from "@/api/client";
+import { createContactMessage } from "@/api/contact";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -524,36 +526,101 @@ function ChoiceField({
   );
 }
 
-function sendProjectInquiry(event: FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-  const form = new FormData(event.currentTarget);
-  const name = String(form.get("name") ?? "");
-  const email = String(form.get("email") ?? "");
-  const phone = String(form.get("phone") ?? "");
-  const countryName = String(form.get("countryName") ?? "");
-  const countryDialCode = String(form.get("countryDialCode") ?? "");
-  const projectType = String(form.get("projectType") ?? "");
-  const service = String(form.get("service") ?? "");
-  const message = String(form.get("message") ?? "");
-  const body = [
-    `Name: ${name}`,
-    `Email: ${email}`,
-    phone ? `Phone: ${countryName} ${countryDialCode} ${phone}` : "",
-    `Project type: ${projectType}`,
-    service ? `Service: ${service}` : "",
-    "",
-    message,
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
-
-  window.location.href = `mailto:hello@dotcode.agency?subject=${encodeURIComponent(
-    `Project inquiry from ${name}`,
-  )}&body=${encodeURIComponent(body)}`;
-}
-
 export function FAQContact() {
   const questionsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const submissionLockRef = useRef(false);
+  const [submissionState, setSubmissionState] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [submissionMessage, setSubmissionMessage] = useState("");
+  const [formKey, setFormKey] = useState(0);
+
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (submissionLockRef.current) return;
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const projectType = String(formData.get("projectType") ?? "").trim();
+    if (!projectType) {
+      const choice = form.querySelector<HTMLButtonElement>("#projectType-choice");
+      choice?.setAttribute("aria-invalid", "true");
+      choice?.focus();
+      const error = form.querySelector<HTMLElement>("[data-selection-error]");
+      if (error) {
+        error.textContent = "Choose a project type to continue.";
+        error.classList.remove("hidden");
+      }
+      return;
+    }
+
+    const name = String(formData.get("name") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const phoneInput = String(formData.get("phone") ?? "").trim();
+    const countryDialCode = String(formData.get("countryDialCode") ?? "").trim();
+    const phone = phoneInput ? `${countryDialCode} ${phoneInput}`.trim() : null;
+    const service = String(formData.get("service") ?? "").trim() || null;
+    const message = String(formData.get("message") ?? "").trim();
+    const nameLength = [...name].length;
+    const messageLength = [...message].length;
+    const phoneLength = phone ? [...phone].length : 0;
+    const validationError = form.querySelector<HTMLElement>("[data-selection-error]");
+    const showValidationError = (selector: string, errorMessage: string) => {
+      const field = form.querySelector<HTMLElement>(selector);
+      field?.setAttribute("aria-invalid", "true");
+      field?.focus();
+      if (validationError) {
+        validationError.textContent = errorMessage;
+        validationError.classList.remove("hidden");
+      }
+      setSubmissionState("idle");
+      setSubmissionMessage("");
+    };
+
+    if (nameLength < 2 || nameLength > 150) {
+      showValidationError('input[name="name"]', "Name must be between 2 and 150 characters.");
+      return;
+    }
+    if (messageLength < 10 || messageLength > 5000) {
+      showValidationError('textarea[name="message"]', "Message must be between 10 and 5000 characters.");
+      return;
+    }
+    if (phoneLength > 50) {
+      showValidationError('input[name="phone"]', "Phone number must be 50 characters or fewer.");
+      return;
+    }
+
+    validationError?.classList.add("hidden");
+    if (validationError) validationError.textContent = "Choose a project type to continue.";
+    for (const selector of ['input[name="name"]', 'input[name="phone"]', 'textarea[name="message"]']) {
+      form.querySelector<HTMLElement>(selector)?.removeAttribute("aria-invalid");
+    }
+
+    submissionLockRef.current = true;
+    setSubmissionState("submitting");
+    setSubmissionMessage("");
+
+    try {
+      await createContactMessage({
+        name,
+        email,
+        phone,
+        project_type: projectType,
+        service,
+        message,
+      });
+      setSubmissionState("success");
+      setSubmissionMessage("Thanks for reaching out. We'll be in touch soon.");
+      setFormKey((key) => key + 1);
+    } catch (error) {
+      setSubmissionState("error");
+      setSubmissionMessage(
+        error instanceof ApiError && error.status === 429
+          ? "Too many requests. Please wait a minute and try again."
+          : "We couldn't send your inquiry. Please try again.",
+      );
+    } finally {
+      submissionLockRef.current = false;
+    }
+  };
 
   useEffect(() => {
     const heading = questionsHeadingRef.current;
@@ -633,19 +700,8 @@ export function FAQContact() {
               discuss how we can help.
             </p>
             <form
-              onSubmit={(event) => {
-                const formData = new FormData(event.currentTarget);
-                if (!formData.get("projectType")) {
-                  event.preventDefault();
-                  const choice = event.currentTarget.querySelector<HTMLButtonElement>("#projectType-choice");
-                  choice?.setAttribute("aria-invalid", "true");
-                  choice?.focus();
-                  event.currentTarget.querySelector<HTMLElement>("[data-selection-error]")?.classList.remove("hidden");
-                  return;
-                }
-                event.currentTarget.querySelector<HTMLElement>("[data-selection-error]")?.classList.add("hidden");
-                sendProjectInquiry(event);
-              }}
+              key={formKey}
+              onSubmit={handleContactSubmit}
               className="space-y-3.5"
             >
               <div className="grid gap-3 sm:grid-cols-2">
@@ -700,14 +756,18 @@ export function FAQContact() {
               </label>
               <button
                 type="submit"
-                className="flex min-h-11 w-full items-center justify-center rounded-full bg-black px-5 font-inter text-[9px]! font-extrabold! uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black sm:text-[10px]! md:text-[11px]!"
+                disabled={submissionState === "submitting"}
+                className="flex min-h-11 w-full items-center justify-center rounded-full bg-black px-5 font-inter text-[9px]! font-extrabold! uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-wait disabled:opacity-60 disabled:hover:bg-black sm:text-[10px]! md:text-[11px]!"
               >
-                Send a project inquiry
+                {submissionState === "submitting" ? "Sending..." : "Send a project inquiry"}
               </button>
             </form>
-            <p className="mt-3 px-1 font-inter text-[9px] leading-relaxed text-black/40">
-              Submitting opens your email app with the inquiry ready to send.
-              We usually reply within one business day.
+            <p
+              role={submissionState === "error" ? "alert" : "status"}
+              aria-live="polite"
+              className={`mt-3 min-h-8 px-1 font-inter text-[9px] leading-relaxed ${submissionState === "error" ? "text-red-600" : submissionState === "success" ? "text-black/65" : "text-black/40"}`}
+            >
+              {submissionMessage || "We usually reply within one business day."}
             </p>
           </div>
         </div>

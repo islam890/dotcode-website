@@ -1,52 +1,19 @@
+import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getServices, type Service } from "@/api/services";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
-const services = [
-  {
-    number: "01",
-    title: "Web development",
-    description:
-      "Fast, considered websites and web applications that turn a clear idea into a useful everyday experience.",
-    tags: ["Websites", "Web apps", "E-commerce"],
-  },
-  {
-    number: "02",
-    title: "Mobile applications",
-    description:
-      "Cross-platform mobile products designed around the people who use them and the systems that support them.",
-    tags: ["iOS & Android", "React Native", "API integration"],
-  },
-  {
-    number: "03",
-    title: "SaaS & digital products",
-    description:
-      "From first architecture to launch, we shape reliable digital products built to grow with your business.",
-    tags: ["Product architecture", "Platforms", "Payments"],
-  },
-  {
-    number: "04",
-    title: "AI solutions",
-    description:
-      "Practical AI features and intelligent workflows that make existing products and processes work harder.",
-    tags: ["AI integrations", "Automation", "Workflows"],
-  },
-  {
-    number: "05",
-    title: "UI/UX & product design",
-    description:
-      "Clear, thoughtful interfaces that make complex tools feel simple and keep every interaction purposeful.",
-    tags: ["Product thinking", "User journeys", "Interfaces"],
-  },
-  {
-    number: "06",
-    title: "Custom software",
-    description:
-      "Purpose-built software for the specific challenges, teams and ambitions behind your next idea.",
-    tags: ["Integrations", "Internal tools", "Scalable systems"],
-  },
-] as const;
+const serviceTagsBySlug: Record<string, string[]> = {
+  "web-development": ["Websites", "Web apps", "E-commerce"],
+  "mobile-applications": ["iOS & Android", "React Native", "API integration"],
+  "saas-digital-products": ["Product architecture", "Platforms", "Payments"],
+  "ai-solutions": ["AI integrations", "Automation", "Workflows"],
+  "ui-ux-product-design": ["Product thinking", "User journeys", "Interfaces"],
+  "custom-software": ["Integrations", "Internal tools", "Scalable systems"],
+};
 
 const capabilities = [
   {
@@ -80,10 +47,40 @@ const process = [
 ] as const;
 
 export function ServicesPage() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [requestKey, setRequestKey] = useState(0);
+
   usePageMetadata(
     "Services | DotCode",
     "Explore DotCode's web, mobile, SaaS, software and AI services, from product strategy and design through development and launch.",
   );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoadState("loading");
+
+    getServices(controller.signal)
+      .then((publishedServices) => {
+        const orderedServices = publishedServices
+          .filter((service) => service.published)
+          .sort((a, b) => a.order - b.order || a.id - b.id);
+        setServices(orderedServices);
+        setLoadState("ready");
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setLoadState("error");
+      });
+
+    return () => controller.abort();
+  }, [requestKey]);
+
+  useEffect(() => {
+    if (loadState !== "ready") return;
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadState, services]);
 
   return (
     <>
@@ -130,14 +127,17 @@ export function ServicesPage() {
               <p className="max-w-[330px] font-inter text-sm leading-relaxed text-black/55 md:col-span-4 md:justify-self-end">A close-knit team for the full journey, from the first conversation to a product people rely on.</p>
             </div>
             <div id="service-offerings" data-reveal-stagger className="border-t border-black/10">
-              {services.map((service) => (
-                <article key={service.number} className="group relative grid grid-cols-12 items-center gap-4 border-b border-black/10 px-1 py-7 transition-colors duration-300 sm:gap-5 sm:py-9 md:py-10">
+              {loadState === "loading" && <p role="status" className="border-b border-black/10 py-8 font-inter text-sm text-black/55">Loading services…</p>}
+              {loadState === "error" && <div role="alert" className="border-b border-black/10 py-8"><p className="font-inter text-sm text-black/60">We couldn&rsquo;t load services right now.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-3 font-inter text-xs font-bold uppercase tracking-[0.08em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">Try again</button></div>}
+              {loadState === "ready" && services.length === 0 && <p className="border-b border-black/10 py-8 font-inter text-sm text-black/55">There are no published services yet.</p>}
+              {loadState === "ready" && services.map((service, index) => (
+                <article key={service.id} className="group relative grid grid-cols-12 items-center gap-4 border-b border-black/10 px-1 py-7 transition-colors duration-300 sm:gap-5 sm:py-9 md:py-10">
                   <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/[0.018] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <span className="relative col-span-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{service.number}</span>
-                  <h3 className="relative col-span-9 font-sora text-[clamp(1.45rem,4vw,2rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-black transition-transform duration-300 group-hover:translate-x-0.5 md:col-span-4">{service.title}</h3>
+                  <span className="relative col-span-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{String(index + 1).padStart(2, "0")}</span>
+                  <h3 className="relative col-span-9 font-sora text-[clamp(1.45rem,4vw,2rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-black transition-transform duration-300 group-hover:translate-x-0.5 md:col-span-4"><a href={`/services/${encodeURIComponent(service.slug)}`} className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">{service.title}</a></h3>
                   <p className="relative col-span-9 col-start-2 font-inter text-[13px] leading-[1.55] text-black/55 sm:text-sm md:col-span-4 md:col-start-6">{service.description}</p>
-                  <div className="relative col-span-9 col-start-2 flex flex-wrap gap-x-4 gap-y-1.5 md:col-span-2 md:col-start-10 md:gap-x-3">{service.tags.map((tag) => <span key={tag} className="font-inter text-[9px] font-semibold uppercase tracking-[0.1em] text-black/35 sm:text-[10px]">{tag}</span>)}</div>
-                  <a href="/contact" aria-label={`Ask about ${service.title}`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
+                  <div className="relative col-span-9 col-start-2 flex flex-wrap gap-x-4 gap-y-1.5 md:col-span-2 md:col-start-10 md:gap-x-3">{(serviceTagsBySlug[service.slug] ?? []).map((tag) => <span key={tag} className="font-inter text-[9px] font-semibold uppercase tracking-[0.1em] text-black/35 sm:text-[10px]">{tag}</span>)}</div>
+                  <a href="https://wa.me/213656264776" target="_blank" rel="noreferrer" aria-label={`Ask about ${service.title} on WhatsApp`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
                     <ArrowUpRight aria-hidden="true" className="size-4" />
                   </a>
                 </article>
@@ -159,7 +159,7 @@ export function ServicesPage() {
                 <span className="relative col-span-1 pt-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{item.number}</span>
                 <h3 className="relative col-span-9 font-sora text-[clamp(1.35rem,3vw,2rem)] font-semibold tracking-[-0.05em] text-black md:col-span-4">{item.title}</h3>
                 <ul className="relative col-span-9 col-start-2 flex flex-wrap gap-x-4 gap-y-2 md:col-span-6 md:col-start-6 md:gap-x-6">{item.items.map((detail) => <li key={detail} className="font-inter text-[10px] uppercase tracking-[0.12em] text-black/40 sm:text-[11px]">{detail}</li>)}</ul>
-                <a href="/contact" aria-label={`Ask about ${item.title}`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
+                <a href="https://wa.me/213656264776" target="_blank" rel="noreferrer" aria-label={`Ask about ${item.title} on WhatsApp`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
                   <ArrowUpRight aria-hidden="true" className="size-4" />
                 </a>
               </article>)}

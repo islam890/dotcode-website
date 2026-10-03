@@ -12,14 +12,16 @@ import { Brands } from "@/components/sections/Brands";
 import { Hero } from "@/components/sections/Hero";
 import { Services } from "@/components/sections/Services";
 import { AboutPage } from "@/components/pages/AboutPage";
-import { ContactPage } from "@/components/pages/ContactPage";
 import { NotFoundPage } from "@/components/pages/NotFoundPage";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
 import { ProjectDetailPage } from "@/components/pages/ProjectDetailPage";
+import { ServiceDetailPage } from "@/components/pages/ServiceDetailPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
 import { TestimonialsPage } from "@/components/pages/TestimonialsPage";
+import { ContactRoutePage } from "@/components/pages/ContactRoutePage";
 import { useGlobalButtonMotion } from "@/hooks/useGlobalButtonMotion";
 import { useRevealAnimations } from "@/hooks/useRevealAnimations";
+import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,9 +44,18 @@ export default function App() {
   const footerRevealSpacerRef = useRef<HTMLDivElement>(null);
   const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
   const isServicesRoute = currentPath === "/services";
+  const serviceDetailMatch = currentPath.match(/^\/services\/([^/]+)$/);
+  let serviceSlug: string | null = null;
+  if (serviceDetailMatch) {
+    try {
+      serviceSlug = decodeURIComponent(serviceDetailMatch[1]);
+    } catch {
+      serviceSlug = null;
+    }
+  }
   const isAboutRoute = currentPath === "/about";
-  const isProjectsRoute = currentPath === "/projects";
-  const projectDetailMatch = currentPath.match(/^\/projects\/([^/]+)$/);
+  const isProjectsRoute = currentPath === "/projects" || currentPath === "/work";
+  const projectDetailMatch = currentPath.match(/^\/(?:projects|work)\/([^/]+)$/);
   let projectSlug: string | null = null;
   if (projectDetailMatch) {
     try {
@@ -53,16 +64,24 @@ export default function App() {
       projectSlug = null;
     }
   }
-  const isTestimonialsRoute = currentPath === "/testimonials";
   const isContactRoute = currentPath === "/contact";
+  const isTestimonialsRoute = currentPath === "/testimonials";
   const isNotFoundRoute =
     currentPath !== "/" &&
     !isServicesRoute &&
+    !serviceSlug &&
     !isAboutRoute &&
     !isProjectsRoute &&
     !projectSlug &&
-    !isTestimonialsRoute &&
-    !isContactRoute;
+    !isContactRoute &&
+    !isTestimonialsRoute;
+
+  usePageMetadata(
+    currentPath === "/" ? "DotCode Agency" : null,
+    currentPath === "/"
+      ? "DotCode Agency builds digital products, AI solutions, and modern software experiences from idea to launch."
+      : null,
+  );
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -102,7 +121,6 @@ export default function App() {
 
     if (
       !root ||
-      isContactRoute ||
       isNotFoundRoute ||
       !hero ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -159,7 +177,7 @@ export default function App() {
     ScrollTrigger.refresh();
 
     return () => context.revert();
-  }, [rootRef, isContactRoute, isNotFoundRoute]);
+  }, [rootRef, isNotFoundRoute]);
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -231,16 +249,18 @@ export default function App() {
     <div ref={rootRef} className="relative isolate w-full">
       {isServicesRoute ? (
         <ServicesPage />
+      ) : serviceSlug ? (
+        <ServiceDetailPage slug={serviceSlug} />
       ) : isAboutRoute ? (
         <AboutPage />
-      ) : isContactRoute ? (
-        <ContactPage />
       ) : isProjectsRoute ? (
         <ProjectsPage />
       ) : projectSlug ? (
         <ProjectDetailPage slug={projectSlug} />
       ) : isTestimonialsRoute ? (
         <TestimonialsPage />
+      ) : isContactRoute ? (
+        <ContactRoutePage />
       ) : isNotFoundRoute ? (
         <NotFoundPage />
       ) : (

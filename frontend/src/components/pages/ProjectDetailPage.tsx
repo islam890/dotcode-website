@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowUpRight, RotateCw } from "lucide-react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ApiError } from "@/api/client";
+import { getProjectBySlug, getProjects } from "@/api/projects";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { conceptProjects, type Project } from "@/data/projects";
@@ -7,10 +10,8 @@ import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 type LoadState = "loading" | "ready" | "not-found" | "error";
 
-const apiBase = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
-
 function projectRoute(slug: string) {
-  return `/projects/${encodeURIComponent(slug)}`;
+  return `/work/${encodeURIComponent(slug)}`;
 }
 
 function orderProjects(items: Project[]) {
@@ -45,42 +46,65 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
   const [project, setProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>(conceptProjects);
   const [state, setState] = useState<LoadState>("loading");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
     const localConcept = conceptProjects.find((item) => item.slug === slug);
+    setState("loading");
+    setProject(null);
+
     if (localConcept) {
       setProject(localConcept);
-      setProjects(conceptProjects);
+      setProjects(orderProjects(conceptProjects));
       setState("ready");
+
+      getProjects(controller.signal)
+        .then((publishedProjects) => {
+          if (controller.signal.aborted) return;
+          setProjects(orderProjects([...publishedProjects, ...conceptProjects]));
+        })
+        .catch(() => {
+          // The local concept remains available if the optional next-project list fails.
+        });
+
       return () => controller.abort();
     }
 
-    fetch(`${apiBase}/projects/`, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Projects request failed (${response.status}).`);
-        const payload: unknown = await response.json();
-        if (!Array.isArray(payload)) throw new Error("The projects response was not a list.");
-        return (payload as Project[]).filter((item) => item.published);
-      })
-      .then((publishedProjects) => {
-        const allProjects = orderProjects([...publishedProjects, ...conceptProjects]);
-        setProjects(allProjects);
-        const match = allProjects.find((item) => item.slug === slug);
-        setProject(match ?? null);
-        setState(match ? "ready" : "not-found");
-      })
-      .catch(() => {
+    getProjectBySlug(slug, controller.signal)
+      .then(async (realProject) => {
         if (controller.signal.aborted) return;
-        setState("error");
+        setProject(realProject);
+        setProjects(orderProjects([...conceptProjects, realProject]));
+        setState("ready");
+
+        try {
+          const publishedProjects = await getProjects(controller.signal);
+          if (controller.signal.aborted) return;
+          setProjects(orderProjects([...publishedProjects, ...conceptProjects]));
+        } catch {
+          // Keep the current project and local concepts available if the optional next-project list fails.
+        }
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setState(error instanceof ApiError && error.status === 404 ? "not-found" : "error");
       });
 
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, retryKey]);
+
+  useEffect(() => {
+    if (state !== "ready") return;
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [projects, state]);
 
   usePageMetadata(
-    project ? `${project.title} | DotCode Projects` : null,
-    project?.short_description ?? null,
+    project?.title.trim()
+      ? `${project.title} | DotCode Projects`
+      : "Project | DotCode",
+    project?.short_description.trim() || "Explore a project from DotCode's selected work.",
   );
 
   const nextProject = useMemo(() => {
@@ -100,8 +124,8 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
         <section className="mx-auto max-w-[1457px] px-4 py-24 sm:px-8 lg:px-10">
           <p className="font-sora text-sm font-medium tracking-[0.08em] text-black/45">Project /</p>
           <h1 className="mt-4 font-sora text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-none tracking-[-0.07em]">{state === "error" ? "Projects are taking a moment." : "Project not found."}</h1>
-          <a href="/projects" className="mt-8 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9]"><ArrowLeft className="size-4" aria-hidden="true" /> Back to all projects</a>
-          {state === "error" && <button type="button" onClick={() => window.location.reload()} className="ml-5 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-black/60"><RotateCw className="size-4" aria-hidden="true" /> Try again</button>}
+          <a href="/work" className="mt-8 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9]"><ArrowLeft className="size-4" aria-hidden="true" /> Back to all projects</a>
+          {state === "error" && <button type="button" onClick={() => setRetryKey((key) => key + 1)} className="ml-5 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-black/60"><RotateCw className="size-4" aria-hidden="true" /> Try again</button>}
         </section>
       </main>
     );
@@ -155,7 +179,7 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
               <div className="flex items-center justify-between gap-5"><p className="font-inter text-[9px] font-bold uppercase tracking-[0.16em] text-white/55 sm:text-[10px]">Next case / {nextProject.category}</p><span className="flex size-11 items-center justify-center rounded-full border border-white/25 transition-colors duration-200 group-hover:border-[#b7ff3c] group-hover:bg-[#b7ff3c] group-hover:text-black sm:size-14"><ArrowUpRight className="size-5" aria-hidden="true" /></span></div>
               <h2 className="mt-8 font-sora text-[clamp(2.5rem,8vw,7rem)] font-semibold leading-[0.9] tracking-[-0.075em] transition-colors duration-200 group-hover:text-[#b7ff3c]">{nextProject.title}</h2>
             </a>
-            <a href="/projects" className="mt-7 inline-flex items-center gap-3 font-inter text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/65 transition-colors hover:text-white sm:mt-9 sm:text-xs"><ArrowLeft className="size-4" aria-hidden="true" /> All projects</a>
+            <a href="/work" className="mt-7 inline-flex items-center gap-3 font-inter text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/65 transition-colors hover:text-white sm:mt-9 sm:text-xs"><ArrowLeft className="size-4" aria-hidden="true" /> All projects</a>
           </div>
         </section>
       )}

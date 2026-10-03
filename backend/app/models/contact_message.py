@@ -14,6 +14,7 @@ class ContactMessage(Base):
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     company: Mapped[str | None] = mapped_column(String(150), nullable=True)
     project_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    service: Mapped[str | None] = mapped_column(String(100), nullable=True)
     budget: Mapped[str | None] = mapped_column(String(100), nullable=True)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(Enum("NEW", "READ", "REPLIED", "ARCHIVED", name="contact_message_status"), default="NEW", nullable=False)

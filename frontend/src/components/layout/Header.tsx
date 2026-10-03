@@ -14,10 +14,10 @@ const menuLinks = [{ label: "Home", href: "/" }, ...navLinks].map((link) => ({
 }));
 
 const menuSocials = [
-  { label: "Facebook", href: "#" },
-  { label: "Instagram", href: "#" },
-  { label: "LinkedIn", href: "#" },
-  { label: "WhatsApp", href: "#" },
+  { label: "Facebook" },
+  { label: "Instagram" },
+  { label: "LinkedIn" },
+  { label: "WhatsApp" },
 ] as const;
 
 const languages = [
@@ -88,7 +88,7 @@ export default function Header() {
   const menuIntroRef = useRef<HTMLParagraphElement | null>(null);
   const menuLinksRef = useRef<HTMLAnchorElement[]>([]);
   const menuSocialHeadingRef = useRef<HTMLParagraphElement | null>(null);
-  const menuSocialsRef = useRef<HTMLAnchorElement[]>([]);
+  const menuSocialsRef = useRef<HTMLElement[]>([]);
   const menuTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const buttonTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
@@ -794,8 +794,11 @@ export default function Header() {
             className="hidden items-center gap-4 font-inter text-[14px] font-medium capitalize text-white/90 lg:flex xl:gap-6 xl:text-[16px]"
           >
             {navLinks.map(({ label, href }) => {
+              const isProjectRoute = currentPath === "/projects" ||
+                currentPath.startsWith("/projects/") ||
+                currentPath.startsWith("/work/");
               const isCurrentPage = href === currentPath ||
-                (href === "/projects" && currentPath.startsWith("/projects/"));
+                (href === "/work" && isProjectRoute);
 
               return (
                 <a
@@ -894,7 +897,10 @@ export default function Header() {
 
           <div className="flex items-center gap-0">
             <a
-              href="/contact"
+              href="https://wa.me/213656264776"
+              target="_blank"
+              rel="noreferrer"
+              data-no-global-button-motion
               className="flex items-center justify-center rounded-full bg-[#b7ff3c] px-2.5 py-[8px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.08em] text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c] sm:px-3 sm:py-[10px] sm:text-[9px]! lg:text-[10px]!"
             >
               Contact us
@@ -1038,7 +1044,7 @@ export default function Header() {
 
                   <div className="flex flex-wrap gap-x-6 gap-y-3">
                     {menuSocials.map((social, index) => (
-                      <a
+                      <span
                         key={social.label}
                         ref={(element) => {
                           if (element) {
@@ -1046,13 +1052,12 @@ export default function Header() {
                               element;
                           }
                         }}
-                        href={social.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm text-white/65 transition-colors duration-200 hover:text-white"
+                        aria-label={social.label}
+                        role="img"
+                        className="text-sm text-white/65"
                       >
                         {social.label}
-                      </a>
+                      </span>
                     ))}
                   </div>
 

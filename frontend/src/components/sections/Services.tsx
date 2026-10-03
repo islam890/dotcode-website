@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
-import { serviceCards } from "@/data/site";
+import { getServices, type Service } from "@/api/services";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -44,6 +44,43 @@ export function Services() {
   const servicesHeadingRef = useRef<HTMLHeadingElement>(null);
   const servicesTrackRef = useRef<HTMLDivElement>(null);
   const [activeServiceDot, setActiveServiceDot] = useState(0);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [requestKey, setRequestKey] = useState(0);
+
+  const featuredServices = services.filter((service) => service.featured);
+  const featuredIds = new Set(featuredServices.map((service) => service.id));
+  const visibleServices = [
+    ...featuredServices,
+    ...services.filter((service) => !featuredIds.has(service.id)),
+  ].slice(0, 3);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoadState("loading");
+
+    getServices(controller.signal)
+      .then((publishedServices) => {
+        setServices(
+          publishedServices
+            .filter((service) => service.published)
+            .sort((a, b) => a.order - b.order || a.id - b.id),
+        );
+        setLoadState("ready");
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setLoadState("error");
+      });
+
+    return () => controller.abort();
+  }, [requestKey]);
+
+  useEffect(() => {
+    if (loadState !== "ready") return;
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadState, services]);
 
   const handleServicesScroll = () => {
     const track = servicesTrackRef.current;
@@ -111,7 +148,7 @@ export function Services() {
           <div className="flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
             <p className="max-w-[500px] font-inter text-[0.92rem] font-normal leading-[1.5] tracking-[-0.02em] text-black/80 sm:text-[1rem] md:text-[1.05rem] lg:text-[1.125rem]">
               Whether you&rsquo;re optimizing today or building for tomorrow we
-              help you move faster with cinfidence.
+              help you move faster with confidence.
             </p>
             <button
               type="button"
@@ -122,27 +159,31 @@ export function Services() {
           </div>
 
           <div className="flex w-full flex-col gap-3">
+            {loadState === "loading" && <p role="status" className="py-8 text-center font-inter text-sm text-black/55">Loading services…</p>}
+            {loadState === "error" && <div role="alert" className="py-6 text-center"><p className="font-inter text-sm text-black/60">We couldn&rsquo;t load services right now.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-3 font-inter text-xs font-bold uppercase tracking-[0.08em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">Try again</button></div>}
+            {loadState === "ready" && visibleServices.length === 0 && <p className="py-8 text-center font-inter text-sm text-black/55">There are no published services yet.</p>}
+            {loadState === "ready" && visibleServices.length > 0 && <>
             <div
               ref={servicesTrackRef}
               onScroll={handleServicesScroll}
               className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
             >
-              {serviceCards.map((service) => (
+              {visibleServices.map((service, index) => (
                 <div
-                  key={service.title}
+                  key={service.id}
                   data-service-slide
                   className="w-[85%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-none"
                 >
                   <ServiceCard
-                    label={service.label}
+                    label={`Service ${String(index + 1).padStart(2, "0")}`}
                     title={service.title}
-                    desc={service.desc}
+                    desc={service.short_description}
                   />
                 </div>
               ))}
             </div>
             <div className="flex items-center justify-center gap-2 pt-1 sm:hidden">
-              {[0, 1].map((page) => (
+              {(visibleServices.length > 1 ? [0, 1] : [0]).map((page) => (
                 <button
                   key={page}
                   type="button"
@@ -157,26 +198,29 @@ export function Services() {
                 />
               ))}
             </div>
+            </>}
           </div>
 
           <div className="flex flex-row flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-5">
             <p className="font-sora text-[12px] font-normal text-black/60 sm:text-[14px]">
               We have more services
             </p>
-            <div className="group flex items-center gap-0">
-              <button
-                type="button"
-                className="flex items-center justify-center rounded-full bg-black px-2.5 py-[8px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.08em] text-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-[#111827] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black sm:px-3 sm:py-[10px] sm:text-[9px]! md:text-[10px]!"
+            <a
+              href="/services#service-list"
+              className="group inline-flex items-center gap-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+            >
+              <span
+                className="flex items-center justify-center rounded-full bg-black px-2.5 py-[8px] font-inter text-[8px]! font-extrabold! uppercase tracking-[0.08em] text-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:bg-[#111827] sm:px-3 sm:py-[10px] sm:text-[9px]! md:text-[10px]!"
               >
                 see all our services
-              </button>
+              </span>
               <div className="flex size-[30px] items-center justify-center rounded-full bg-black text-white transition-transform duration-200 group-hover:-translate-y-0.5 sm:size-[34px] md:size-[38px]">
                 <ArrowUpRight
                   className="size-5 sm:size-[22px] md:size-6"
                   aria-hidden="true"
                 />
               </div>
-            </div>
+            </a>
           </div>
         </div>
       </div>

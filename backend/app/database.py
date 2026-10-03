@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     app_env: str
     database_url: str
     database_password: str
+    cors_origins: str = "http://localhost:3000"
+    api_docs_enabled: bool = True
 
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
@@ -16,6 +18,19 @@ class Settings(BaseSettings):
     model_config = {
         "env_file": ".env"
     }
+
+    @property
+    def allowed_cors_origins(self) -> list[str]:
+        origins = [
+            origin.strip().rstrip("/")
+            for origin in self.cors_origins.split(",")
+            if origin.strip()
+        ]
+        if not origins:
+            raise ValueError("CORS_ORIGINS must contain at least one origin.")
+        if any("*" in origin for origin in origins):
+            raise ValueError("CORS_ORIGINS must not contain wildcard origins.")
+        return origins
 
 
 settings = Settings()

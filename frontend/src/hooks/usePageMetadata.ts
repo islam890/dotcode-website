@@ -1,5 +1,21 @@
 import { useEffect } from "react";
 
+function getCanonicalUrl() {
+  const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim();
+  if (!configuredSiteUrl) return null;
+
+  try {
+    const siteUrl = new URL(configuredSiteUrl);
+    if (siteUrl.protocol !== "https:" && siteUrl.protocol !== "http:") return null;
+    siteUrl.pathname = siteUrl.pathname.replace(/\/+$/, "");
+    let routePath = window.location.pathname.replace(/\/+$/, "") || "/";
+    routePath = routePath.replace(/^\/projects(?=\/|$)/, "/work");
+    return new URL(routePath, `${siteUrl.href.replace(/\/+$/, "")}/`).href;
+  } catch {
+    return null;
+  }
+}
+
 function updateMeta(selector: string, attributes: Record<string, string>, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(selector);
   const created = !element;
@@ -26,6 +42,26 @@ function updateMeta(selector: string, attributes: Record<string, string>, conten
   };
 }
 
+function updateLink(selector: string, attributes: Record<string, string>, href: string | null) {
+  let element = document.head.querySelector<HTMLLinkElement>(selector);
+  const created = !element && href !== null;
+
+  if (!element && href !== null) {
+    element = document.createElement("link");
+    Object.entries(attributes).forEach(([name, value]) => element?.setAttribute(name, value));
+    document.head.append(element);
+  }
+
+  const previousHref = element?.getAttribute("href") ?? null;
+  if (element && href !== null) element.setAttribute("href", href);
+
+  return () => {
+    if (created) element?.remove();
+    else if (element && previousHref === null) element.removeAttribute("href");
+    else if (element) element.setAttribute("href", previousHref!);
+  };
+}
+
 export function usePageMetadata(title: string | null, description: string | null) {
   useEffect(() => {
     if (!title || !description) return;
@@ -48,12 +84,52 @@ export function usePageMetadata(title: string | null, description: string | null
       { property: "og:description" },
       description,
     );
+    const restoreOpenGraphType = updateMeta(
+      'meta[property="og:type"]',
+      { property: "og:type" },
+      "website",
+    );
+    const restoreTwitterCard = updateMeta(
+      'meta[name="twitter:card"]',
+      { name: "twitter:card" },
+      "summary",
+    );
+    const restoreTwitterTitle = updateMeta(
+      'meta[name="twitter:title"]',
+      { name: "twitter:title" },
+      title,
+    );
+    const restoreTwitterDescription = updateMeta(
+      'meta[name="twitter:description"]',
+      { name: "twitter:description" },
+      description,
+    );
+    const canonicalUrl = getCanonicalUrl();
+    const restoreCanonical = updateLink('link[rel="canonical"]', { rel: "canonical" }, canonicalUrl);
+    const existingOpenGraphUrl = document.head.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+    let restoreOpenGraphUrl = () => {};
+    if (canonicalUrl) {
+      restoreOpenGraphUrl = updateMeta(
+        'meta[property="og:url"]',
+        { property: "og:url" },
+        canonicalUrl,
+      );
+    } else if (existingOpenGraphUrl) {
+      existingOpenGraphUrl.remove();
+      restoreOpenGraphUrl = () => document.head.append(existingOpenGraphUrl);
+    }
 
     return () => {
       document.title = previousTitle;
       restoreDescription();
       restoreOpenGraphTitle();
       restoreOpenGraphDescription();
+      restoreOpenGraphType();
+      restoreTwitterCard();
+      restoreTwitterTitle();
+      restoreTwitterDescription();
+      restoreCanonical();
+      restoreOpenGraphUrl();
     };
   }, [title, description]);
 }

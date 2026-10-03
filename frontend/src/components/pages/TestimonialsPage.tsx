@@ -1,24 +1,14 @@
 ﻿import { useEffect, useRef, useState } from "react";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, RotateCw } from "lucide-react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getTestimonials, type Testimonial as ApiTestimonial } from "@/api/testimonials";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 
-type Testimonial = {
-  id: number;
-  client_name: string;
-  client_role: string | null;
-  company_name: string | null;
-  content: string;
-  avatar_url: string | null;
-  published: boolean;
-  isSample?: boolean;
-};
-
-type LoadState = "loading" | "ready";
-
-const apiBase = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+type LoadState = "loading" | "ready" | "error";
+type Testimonial = ApiTestimonial & { isSample?: boolean };
 
 const sampleTestimonials: Testimonial[] = [
   {
@@ -162,6 +152,7 @@ function TestimonialMarquee({ testimonials }: { testimonials: Testimonial[] }) {
 export function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [state, setState] = useState<LoadState>("loading");
+  const [requestKey, setRequestKey] = useState(0);
 
   usePageMetadata(
     "Testimonials | DotCode",
@@ -172,25 +163,26 @@ export function TestimonialsPage() {
     const controller = new AbortController();
     setState("loading");
 
-    fetch(`${apiBase}/testimonials/`, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Testimonials request failed.");
-        const payload: unknown = await response.json();
-        if (!Array.isArray(payload)) throw new Error("Invalid testimonials response.");
-        return (payload as Testimonial[]).filter((testimonial) => testimonial.published);
-      })
+    getTestimonials(controller.signal)
       .then((publishedTestimonials) => {
-        setTestimonials(publishedTestimonials.length ? publishedTestimonials : sampleTestimonials);
+        const visibleTestimonials = publishedTestimonials.filter((testimonial) => testimonial.published);
+        setTestimonials(visibleTestimonials.length ? visibleTestimonials : sampleTestimonials);
         setState("ready");
       })
       .catch(() => {
         if (controller.signal.aborted) return;
-        setTestimonials(sampleTestimonials);
-        setState("ready");
+        setTestimonials([]);
+        setState("error");
       });
 
     return () => controller.abort();
-  }, []);
+  }, [requestKey]);
+
+  useEffect(() => {
+    if (state !== "ready") return;
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [state, testimonials]);
 
   return (
     <>
@@ -234,6 +226,7 @@ export function TestimonialsPage() {
             </div>
 
             {state === "loading" && <div role="status" className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">Loading client stories…</div>}
+            {state === "error" && <div role="alert" className="border-y border-black/15 py-12 text-center"><p className="font-sora text-xl font-semibold tracking-[-0.04em]">Client stories are taking a moment.</p><p className="mt-2 font-inter text-sm text-black/55">We couldn&rsquo;t load testimonials right now.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-black px-4 py-2.5 font-inter text-[10px] font-extrabold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"><RotateCw className="size-3.5" aria-hidden="true" /> Try again</button></div>}
 
             {state === "ready" && <>
               {testimonials.some((testimonial) => testimonial.isSample) && <p className="mb-4 font-inter text-[9px] font-bold uppercase tracking-[0.12em] text-black/40">Sample testimonials for layout preview</p>}

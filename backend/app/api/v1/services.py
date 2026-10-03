@@ -18,14 +18,22 @@ router = APIRouter(
 # --- Get all services
 @router.get("/", response_model=list[ServiceResponse])
 def get_all_services(db: Session = Depends(get_db)):
-    services = db.query(Service).all()
+    services = (
+        db.query(Service)
+        .filter(Service.published.is_(True))
+        .order_by(Service.order.asc(), Service.id.asc())
+        .all()
+    )
     
     return services
 
 # --- Get a service by slug
 @router.get("/{slug}", response_model=ServiceResponse)
 def get_service(slug: str, db: Session = Depends(get_db)):
-    service = db.query(Service).filter(Service.slug == slug).first()
+    service = db.query(Service).filter(
+        Service.slug == slug,
+        Service.published.is_(True),
+    ).first()
     
     if not service:
         raise HTTPException(

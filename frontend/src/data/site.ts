@@ -40,7 +40,7 @@ export const images = {
 export const navLinks = [
   { label: "services", href: "/services" },
   { label: "about us", href: "/about" },
-  { label: "Our Projects", href: "/projects" },
+  { label: "Our Projects", href: "/work" },
   { label: "Testimonials", href: "/testimonials" },
 ] as const;
 
@@ -55,27 +55,9 @@ export const brandLogos = [
   { src: images.att, name: "AT&T" },
 ] as const;
 
-export const serviceCards = [
-  {
-    label: "Service 01",
-    title: "Web Development",
-    desc: "Modern websites and web applications designed to perform, engage and scale.",
-  },
-  {
-    label: "Service 02",
-    title: "Mobile Development",
-    desc: "Intuitive mobile experiences built for iOS, Android and the way people use technology.",
-  },
-  {
-    label: "Service 03",
-    title: "AI Solutions",
-    desc: "Intelligent tools, automation and AI integrations built around real business needs.",
-  },
-] as const;
-
 export const socialLinks = [
-  { name: "Facebook", href: "#" },
-  { name: "Instagram", href: "#" },
-  { name: "LinkedIn", href: "#" },
-  { name: "WhatsApp", href: "#" },
+  { name: "Facebook" },
+  { name: "Instagram" },
+  { name: "LinkedIn" },
+  { name: "WhatsApp" },
 ] as const;

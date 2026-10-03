@@ -14,6 +14,7 @@ class ContactMessageResponse(BaseModel):
     phone: str | None
     company: str | None
     project_type: str | None
+    service: str | None
     budget: str | None
     message: str
     status: Literal["NEW", "READ", "REPLIED", "ARCHIVED"]
@@ -28,6 +29,7 @@ class ContactMessageCreate(BaseModel):
     phone: str | None = Field(default=None, max_length=50)
     company: str | None = Field(default=None, max_length=150)
     project_type: str | None = Field(default=None, max_length=100)
+    service: str | None = Field(default=None, max_length=100)
     budget: str | None = Field(default=None, max_length=100)
     message: str = Field(min_length=10, max_length=5000)
 

@@ -1,6 +1,7 @@
 import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { loadEnv } from 'vite'
 import path from 'node:path'
 
 import siteConfiguration from './.figma/make/site.json'
@@ -8,6 +9,9 @@ import siteConfiguration from './.figma/make/site.json'
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  const environment = loadEnv(mode, process.cwd(), '')
+  const siteUrl = normalizeSiteUrl(environment.VITE_SITE_URL)
+  const apiBaseUrl = environment.VITE_API_BASE_URL || environment.API_PROXY_TARGET
   // .figma/make/deploy-preview passes `--mode development` for cached-preview builds.
   const emitSourcemaps = mode === 'development'
 
@@ -20,6 +24,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
 react(),
       tailwindcss(),
+      ...(siteUrl ? [sitemapPlugin(siteUrl, apiBaseUrl)] : []),
       figmaSiteConfiguration(siteConfiguration),
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
@@ -52,6 +57,94 @@ react(),
     },
   }
 })
+
+function normalizeSiteUrl(value: string | undefined): string | null {
+  if (!value?.trim()) return null
+
+  try {
+    const url = new URL(value.trim())
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
+    url.search = ''
+    url.hash = ''
+    url.pathname = url.pathname.replace(/\/+$/, '')
+    return url.href.replace(/\/+$/, '')
+  } catch {
+    return null
+  }
+}
+
+const staticSitemapPaths = ['/', '/work', '/services', '/about', '/testimonials', '/contact']
+
+function xmlEscape(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+}
+
+async function fetchPublishedPaths(apiBaseUrl: string | undefined, resource: 'projects' | 'services'): Promise<string[]> {
+  if (!apiBaseUrl) return []
+
+  let apiBase: URL
+  try {
+    apiBase = new URL(apiBaseUrl)
+    if (apiBase.protocol !== 'https:' && apiBase.protocol !== 'http:') return []
+  } catch {
+    return []
+  }
+
+  const endpoint = new URL(`${apiBase.href.replace(/\/+$/, '')}/${resource}/`)
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 3000)
+
+  try {
+    const response = await fetch(endpoint, { signal: controller.signal })
+    if (!response.ok) return []
+    const entries: unknown = await response.json()
+    if (!Array.isArray(entries)) return []
+
+    return entries.flatMap((entry) => {
+      if (!entry || typeof entry !== 'object') return []
+      const item = entry as { slug?: unknown; published?: unknown }
+      if (item.published !== true || typeof item.slug !== 'string' || !item.slug.trim()) return []
+      const route = resource === 'projects' ? '/work' : '/services'
+      return [`${route}/${encodeURIComponent(item.slug.trim())}`]
+    })
+  } catch {
+    return []
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+function sitemapPlugin(siteUrl: string, apiBaseUrl: string | undefined): Plugin {
+  return {
+    name: 'dotcode-sitemap',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        const canonical = `${siteUrl}/`
+        return {
+          html,
+          tags: [
+            { tag: 'link', attrs: { rel: 'canonical', href: canonical }, injectTo: 'head' },
+            { tag: 'meta', attrs: { property: 'og:url', content: canonical }, injectTo: 'head' },
+          ],
+        }
+      },
+    },
+    async generateBundle() {
+      const dynamicPaths = await Promise.all([
+        fetchPublishedPaths(apiBaseUrl, 'projects'),
+        fetchPublishedPaths(apiBaseUrl, 'services'),
+      ])
+      const paths = [...new Set([...staticSitemapPaths, ...dynamicPaths.flat()])]
+      const urls = paths
+        .map((route) => `<url><loc>${xmlEscape(`${siteUrl}${route === '/' ? '/' : route}`)}</loc></url>`)
+        .join('\n  ')
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  ${urls}\n</urlset>\n`
+
+      this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap })
+    },
+  }
+}
 
 type FigmaSiteConfiguration = {
   title?: string
@@ -150,10 +243,18 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
         if (description) {
           tags.push({ tag: 'meta', attrs: { property: 'og:description', content: description }, injectTo: 'head' })
         }
+        if (title) {
+          tags.push({ tag: 'meta', attrs: { name: 'twitter:title', content: title }, injectTo: 'head' })
+        }
+        if (description) {
+          tags.push(
+            { tag: 'meta', attrs: { name: 'twitter:description', content: description }, injectTo: 'head' },
+            { tag: 'meta', attrs: { name: 'twitter:card', content: socialImage ? 'summary_large_image' : 'summary' }, injectTo: 'head' },
+          )
+        }
         if (socialImage) {
           tags.push(
             { tag: 'meta', attrs: { property: 'og:image', content: socialImage }, injectTo: 'head' },
-            { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' },
             { tag: 'meta', attrs: { name: 'twitter:image', content: socialImage }, injectTo: 'head' },
           )
         }
