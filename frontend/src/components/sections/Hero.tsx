@@ -3,7 +3,7 @@ import { ArrowUpRight, Star } from "lucide-react";
 import { images } from "@/data/site";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useLocale } from "@/i18n";
 
 const heroCards = [
@@ -25,138 +25,83 @@ export function Hero() {
     if (!cardsRoot) return;
 
     const track = cardsRoot.querySelector<HTMLElement>(".hero-card-track");
-    const cards = Array.from(
-      cardsRoot.querySelectorAll<HTMLElement>(".hero-card"),
-    );
-    if (!cards.length || !track) return;
+    const cards = Array.from(cardsRoot.querySelectorAll<HTMLElement>(".hero-card"));
+    if (!track || cards.length === 0) return;
 
-    const motion = gsap.matchMedia();
-    gsap.set(cards, { autoAlpha: 1 });
-    motion.add(
-      "(prefers-reduced-motion: no-preference)",
-      () => {
-        const context = gsap.context(() => {
-          const firstSet = cards.slice(0, heroCards.length);
-          const firstClone = cards[heroCards.length];
-          let loopWidth = 0;
-          let trackOffset = 0;
-          let isEntering = true;
-          let resizeObserver: ResizeObserver | undefined;
+    const context = gsap.context(() => {
+      const centerCard = cards[heroCards.length];
+      let loopWidth = 0;
+      let startX = 0;
+      let horizontalLoop: gsap.core.Tween | undefined;
 
-          const updateLoopMeasurements = () => {
-            const rootRect = cardsRoot.getBoundingClientRect();
-            const firstRect = firstSet[0].getBoundingClientRect();
-            const cloneRect = firstClone.getBoundingClientRect();
+      const positionTrack = () => {
+        gsap.set(track, { x: 0 });
+        const rootRect = cardsRoot.getBoundingClientRect();
+        const trackRect = track.getBoundingClientRect();
+        loopWidth = centerCard.offsetLeft - cards[0].offsetLeft;
+        startX =
+          rootRect.left +
+          rootRect.width / 2 -
+          (trackRect.left + centerCard.offsetLeft + centerCard.offsetWidth / 2);
+        gsap.set(track, { x: startX });
+      };
 
-            loopWidth = cloneRect.left - firstRect.left;
-            trackOffset = (rootRect.width - loopWidth) / 2 + rootRect.width * 0.06;
-            gsap.set(track, { x: trackOffset - loopWidth });
-          };
+      const updateCardCurve = () => {
+        const rootRect = cardsRoot.getBoundingClientRect();
+        const center = rootRect.left + rootRect.width / 2;
+        const focusRange = Math.max(rootRect.width * 0.52, 1);
+        const curveDepth = rootRect.width * 0.06;
 
-          const updateCardDepth = () => {
-            if (isEntering) return;
+        cards.forEach((card) => {
+          const cardRect = card.getBoundingClientRect();
+          const distance = cardRect.left + cardRect.width / 2 - center;
+          const normalizedDistance = gsap.utils.clamp(-1.4, 1.4, distance / focusRange);
+          const distanceFromCenter = Math.min(Math.abs(normalizedDistance), 1);
+          const centerFocus = 1 - distanceFromCenter;
+          const edgeFade = gsap.utils.clamp(
+            0,
+            1,
+            (Math.abs(distance) - rootRect.width * 0.34) / Math.max(rootRect.width * 0.16, 1),
+          );
 
-            const rootRect = cardsRoot.getBoundingClientRect();
-            const center = rootRect.left + rootRect.width / 2;
-            const focusRange = Math.max(rootRect.width * 0.52, 1);
-            const curveDepth = Math.min(1000, rootRect.width * 0.075);
-
-            cards.forEach((card, index) => {
-              const cardRect = card.getBoundingClientRect();
-              const distance = cardRect.left + cardRect.width / 2 - center;
-              const normalizedDistance = gsap.utils.clamp(
-                -1.4,
-                1.4,
-                distance / focusRange,
-              );
-              const distanceFromCenter = Math.min(
-                Math.abs(normalizedDistance),
-                1,
-              );
-              const centerFocus = 1 - distanceFromCenter;
-              const edgeFade = gsap.utils.clamp(
-                0,
-                1,
-                (Math.abs(distance) - rootRect.width * 0.34) /
-                  Math.max(rootRect.width * 0.16, 1),
-              );
-              const sequenceIndex = index % heroCards.length;
-              const float = Math.sin(
-                gsap.ticker.time * (1.1 + (sequenceIndex % 3) * 0.12) +
-                  sequenceIndex * 0.8,
-              );
-              const edgeCurve = distanceFromCenter * distanceFromCenter;
-
-              gsap.set(card, {
-                y: edgeCurve * curveDepth + float * 3,
-                scale: 0.78 + centerFocus * 0.22,
-                opacity: 1 - edgeFade * 0.78,
-                rotation: normalizedDistance * 5,
-                rotationY: normalizedDistance * -72,
-                rotationX: float * 1.2,
-                z: centerFocus * 50 - edgeCurve * 80,
-              });
-            });
-          };
-
-          updateLoopMeasurements();
-          updateCardDepth();
-          resizeObserver = new ResizeObserver(() => {
-            updateLoopMeasurements();
-            updateCardDepth();
-          });
-          resizeObserver.observe(cardsRoot);
-
-          gsap.set(cards, {
+          gsap.set(card, {
+            y: distanceFromCenter * distanceFromCenter * curveDepth,
+            scale: 0.78 + centerFocus * 0.22,
+            opacity: 1 - edgeFade * 0.78,
+            rotation: normalizedDistance * 5,
+            rotationY: normalizedDistance * -72,
             transformPerspective: 1200,
             transformOrigin: "center center",
             force3D: true,
           });
+        });
+      };
 
-          const entrance = gsap.timeline({
-            defaults: { ease: "power3.out" },
-          });
-          entrance.fromTo(
-            cards,
-            { autoAlpha: 0, y: 36, scale: 0.88 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.9,
-              stagger: { each: 0.045, from: "center" },
-            },
-          );
+      positionTrack();
+      updateCardCurve();
 
-          const horizontalLoop = gsap.to(track, {
-            x: () => trackOffset - loopWidth * 2,
-            duration: () => Math.max(loopWidth / 78, 1),
-            ease: "none",
-            repeat: -1,
-            immediateRender: false,
-            paused: true,
-            onUpdate: updateCardDepth,
-          });
-          entrance.eventCallback("onComplete", () => {
-            isEntering = false;
-            updateCardDepth();
-            horizontalLoop.play();
-          });
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        horizontalLoop = gsap.to(track, {
+          x: () => startX - loopWidth,
+          duration: () => Math.max(loopWidth / 78, 1),
+          ease: "none",
+          repeat: -1,
+          onUpdate: updateCardCurve,
+        });
+      }
 
-          gsap.ticker.add(updateCardDepth);
+      const resizeObserver = new ResizeObserver(() => {
+        horizontalLoop?.pause();
+        positionTrack();
+        updateCardCurve();
+        horizontalLoop?.invalidate().restart();
+      });
+      resizeObserver.observe(cardsRoot);
 
-          return () => {
-            resizeObserver?.disconnect();
-            gsap.ticker.remove(updateCardDepth);
-          };
-        }, cardsRoot);
+      return () => resizeObserver.disconnect();
+    }, cardsRoot);
 
-        return () => context.revert();
-      },
-    );
-    return () => {
-      motion.revert();
-    };
+    return () => context.revert();
   }, []);
 
   return (
@@ -167,7 +112,6 @@ export function Hero() {
         aria-hidden="true"
         className="absolute inset-0 size-full object-cover opacity-90"
       />
-
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.22),_transparent_48%)]"
@@ -218,8 +162,8 @@ export function Hero() {
                 solutions, and technology built for growth.
               </p>
 
-              {/* CTA and cards share a fixed gap across locales. */}
-              <div className="flex w-full flex-col items-center gap-4 sm:gap-6">
+              {/* CTA */}
+              <div className="flex w-full flex-col items-center gap-3 sm:gap-4">
               <div
                 data-anim="hero-cta"
                 className="flex flex-wrap items-center justify-center gap-2 sm:gap-3"
@@ -256,33 +200,25 @@ export function Hero() {
 
               <div
                 data-hero-cards
-                className="hero-card-window"
+                dir="ltr"
+                className="relative h-[clamp(10rem,16vw,14rem)] w-screen overflow-hidden [perspective:1200px]"
                 aria-label="Featured product visuals"
                 ref={heroCardsRef}
               >
                 <div className="hero-card-track">
-                  {[
-                    ...heroCards,
-                    ...heroCards,
-                    ...heroCards,
-                    ...heroCards,
-                  ].map((card, index) => {
-                    const cardIndex = index % heroCards.length;
-                    return (
+                  {[...heroCards, ...heroCards, ...heroCards, ...heroCards].map(
+                    (card, index) => (
                       <img
                         key={`${card.src}-${index}`}
                         src={card.src}
                         alt={card.alt}
                         className="hero-card"
-                        data-hero-card-position={cardIndex}
-                        style={
-                          { "--hero-card-index": cardIndex } as CSSProperties
-                        }
                       />
-                    );
-                  })}
+                    ),
+                  )}
                 </div>
               </div>
+
               </div>
             </div>
           </div>
