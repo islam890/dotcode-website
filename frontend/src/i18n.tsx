@@ -2,6 +2,34 @@
 
 export type Locale = "en" | "fr" | "ar" | "de" | "es";
 
+const localePathSegments: Record<Locale, string> = {
+  en: "En",
+  fr: "Fr",
+  ar: "Ar",
+  de: "De",
+  es: "Es",
+};
+
+export function localeFromPath(pathname: string): Locale | null {
+  const match = pathname.match(/^\/(en|fr|ar|de|es)(?=\/|$)/i);
+  return match ? (match[1].toLowerCase() as Locale) : null;
+}
+
+export function stripLocaleFromPath(pathname: string): string {
+  const stripped = pathname.replace(/^\/(?:en|fr|ar|de|es)(?=\/|$)/i, "");
+  return stripped || "/";
+}
+
+export function isAppRoutePath(pathname: string): boolean {
+  const route = stripLocaleFromPath(pathname).replace(/\/+$/, "") || "/";
+  return route === "/" || /^\/(?:services|about|projects|work|contact|testimonials)(?:\/|$)/.test(route);
+}
+
+export function localizePath(pathname: string, locale: Locale): string {
+  const route = stripLocaleFromPath(pathname).replace(/\/+$/, "") || "/";
+  return `/${localePathSegments[locale]}${route === "/" ? "" : route}`;
+}
+
 const LocaleContext = createContext<{
   locale: Locale;
   setLocale: (locale: Locale) => void;
@@ -415,6 +443,17 @@ const french: Record<string, string> = {
   "Hours invested in": "Heures consacrées à",
   "building and refining": "la conception et l’amélioration des",
   "digital products.": "produits numériques.",
+  "Modern websites and web applications designed to perform, engage, and scale.": "Des sites web et applications modernes, conçus pour être performants, attirer les utilisateurs et évoluer.",
+  "Mobile Development": "Développement mobile",
+  "Intuitive mobile experiences built for iOS, Android, and the way people use technology today.": "Des expériences mobiles intuitives pour iOS et Android, adaptées aux usages technologiques d’aujourd’hui.",
+  "SaaS Development": "Développement SaaS",
+  "Scalable SaaS products designed to turn ideas into reliable digital businesses.": "Des produits SaaS évolutifs conçus pour transformer les idées en activités numériques fiables.",
+  "AI Solutions": "Solutions d’IA",
+  "Intelligent tools, automation, and integrations built around real business needs.": "Des outils intelligents, des automatisations et des intégrations conçus selon les besoins réels des entreprises.",
+  "UI/UX Design": "Design UI/UX",
+  "Clear, purposeful interfaces that make digital products easier to understand and use.": "Des interfaces claires et réfléchies qui rendent les produits numériques plus faciles à comprendre et à utiliser.",
+  "Custom Software": "Logiciels sur mesure",
+  "Tailored digital systems built around your workflows, operations, and unique requirements.": "Des systèmes numériques adaptés à vos processus, à vos opérations et à vos besoins spécifiques.",
 };
 
 const arabic: Record<string, string> = {
@@ -802,6 +841,17 @@ const arabic: Record<string, string> = {
   "Hours invested in": "ساعات نكرّسها لـ",
   "building and refining": "بناء وتحسين",
   "digital products.": "المنتجات الرقمية.",
+  "Modern websites and web applications designed to perform, engage, and scale.": "مواقع وتطبيقات ويب حديثة مصممة للأداء والتفاعل وقابلية التوسع.",
+  "Mobile Development": "تطوير تطبيقات الهاتف المحمول",
+  "Intuitive mobile experiences built for iOS, Android, and the way people use technology today.": "تجارب محمولة سهلة الاستخدام على iOS وAndroid، تواكب طريقة استخدام الناس للتقنية اليوم.",
+  "SaaS Development": "تطوير البرمجيات كخدمة",
+  "Scalable SaaS products designed to turn ideas into reliable digital businesses.": "منتجات برمجية كخدمة قابلة للتوسع، مصممة لتحويل الأفكار إلى أعمال رقمية موثوقة.",
+  "AI Solutions": "حلول الذكاء الاصطناعي",
+  "Intelligent tools, automation, and integrations built around real business needs.": "أدوات ذكية وأتمتة وعمليات تكامل مصممة لتلبية احتياجات الأعمال الفعلية.",
+  "UI/UX Design": "تصميم واجهات وتجربة المستخدم",
+  "Clear, purposeful interfaces that make digital products easier to understand and use.": "واجهات واضحة ومدروسة تجعل المنتجات الرقمية أسهل فهماً واستخداماً.",
+  "Custom Software": "برمجيات مخصصة",
+  "Tailored digital systems built around your workflows, operations, and unique requirements.": "أنظمة رقمية مصممة خصيصاً لتناسب سير عملك وعملياتك ومتطلباتك الفريدة.",
 };
 
 const german: Record<string, string> = {
@@ -1182,6 +1232,17 @@ const german: Record<string, string> = {
   "Hours invested in": "Stunden für die",
   "building and refining": "Entwicklung und Verbesserung",
   "digital products.": "digitaler Produkte.",
+  "Modern websites and web applications designed to perform, engage, and scale.": "Moderne Websites und Webanwendungen, die leistungsfähig sind, Nutzer ansprechen und mitwachsen.",
+  "Mobile Development": "Mobile Entwicklung",
+  "Intuitive mobile experiences built for iOS, Android, and the way people use technology today.": "Intuitive mobile Erlebnisse für iOS und Android, passend zur heutigen Nutzung von Technologie.",
+  "SaaS Development": "SaaS-Entwicklung",
+  "Scalable SaaS products designed to turn ideas into reliable digital businesses.": "Skalierbare SaaS-Produkte, die Ideen in zuverlässige digitale Geschäftsmodelle verwandeln.",
+  "AI Solutions": "KI-Lösungen",
+  "Intelligent tools, automation, and integrations built around real business needs.": "Intelligente Tools, Automatisierungen und Integrationen für konkrete Geschäftsanforderungen.",
+  "UI/UX Design": "UI/UX-Design",
+  "Clear, purposeful interfaces that make digital products easier to understand and use.": "Klare, durchdachte Benutzeroberflächen, die digitale Produkte verständlicher und einfacher nutzbar machen.",
+  "Custom Software": "Individuelle Software",
+  "Tailored digital systems built around your workflows, operations, and unique requirements.": "Digitale Systeme nach Maß, abgestimmt auf Ihre Abläufe, Prozesse und besonderen Anforderungen.",
 };
 
 const spanish: Record<string, string> = {
@@ -1562,6 +1623,17 @@ const spanish: Record<string, string> = {
   "Hours invested in": "Horas dedicadas a",
   "building and refining": "crear y perfeccionar",
   "digital products.": "productos digitales.",
+  "Modern websites and web applications designed to perform, engage, and scale.": "Sitios web y aplicaciones web modernos, diseñados para ofrecer rendimiento, atraer usuarios y crecer.",
+  "Mobile Development": "Desarrollo móvil",
+  "Intuitive mobile experiences built for iOS, Android, and the way people use technology today.": "Experiencias móviles intuitivas para iOS y Android, adaptadas a cómo se usa la tecnología hoy.",
+  "SaaS Development": "Desarrollo SaaS",
+  "Scalable SaaS products designed to turn ideas into reliable digital businesses.": "Productos SaaS escalables diseñados para convertir ideas en negocios digitales fiables.",
+  "AI Solutions": "Soluciones de IA",
+  "Intelligent tools, automation, and integrations built around real business needs.": "Herramientas inteligentes, automatización e integraciones creadas para necesidades empresariales reales.",
+  "UI/UX Design": "Diseño UI/UX",
+  "Clear, purposeful interfaces that make digital products easier to understand and use.": "Interfaces claras y funcionales que hacen los productos digitales más fáciles de entender y usar.",
+  "Custom Software": "Software a medida",
+  "Tailored digital systems built around your workflows, operations, and unique requirements.": "Sistemas digitales a medida, creados para tus procesos, operaciones y requisitos específicos.",
 };
 
 const normalizedFrench = new Map(
@@ -1721,6 +1793,8 @@ function LocaleDomSync({ locale }: { locale: Locale }) {
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
     try {
+      const pathLocale = localeFromPath(window.location.pathname);
+      if (pathLocale) return pathLocale;
       const storedLocale = localStorage.getItem("dotcode-locale");
       return storedLocale === "fr" || storedLocale === "ar" || storedLocale === "de" || storedLocale === "es"
         ? storedLocale
@@ -1730,12 +1804,28 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }
   });
 
+  useEffect(() => {
+    if (localeFromPath(window.location.pathname)) return;
+    const localizedPath = localizePath(window.location.pathname, locale);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${localizedPath}${window.location.search}${window.location.hash}`,
+    );
+  }, [locale]);
+
   const setLocale = (nextLocale: Locale) => {
     try {
       localStorage.setItem("dotcode-locale", nextLocale);
     } catch {
       // The selected language still applies for this page when storage is unavailable.
     }
+    const localizedPath = localizePath(window.location.pathname, nextLocale);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${localizedPath}${window.location.search}${window.location.hash}`,
+    );
     setLocaleState(nextLocale);
   };
 

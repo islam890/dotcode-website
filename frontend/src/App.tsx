@@ -22,7 +22,7 @@ import { ContactRoutePage } from "@/components/pages/ContactRoutePage";
 import { useGlobalButtonMotion } from "@/hooks/useGlobalButtonMotion";
 import { useRevealAnimations } from "@/hooks/useRevealAnimations";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
-import { useLocale } from "@/i18n";
+import { stripLocaleFromPath, useLocale } from "@/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -44,7 +44,7 @@ export default function App() {
   const { locale } = useLocale();
   useGlobalButtonMotion();
   const footerRevealSpacerRef = useRef<HTMLDivElement>(null);
-  const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  const currentPath = stripLocaleFromPath(window.location.pathname).replace(/\/+$/, "") || "/";
   const isServicesRoute = currentPath === "/services";
   const serviceDetailMatch = currentPath.match(/^\/services\/([^/]+)$/);
   let serviceSlug: string | null = null;

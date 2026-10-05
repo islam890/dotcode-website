@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { images, navLinks } from "@/data/site";
 import { flaticonIcons } from "@/data/flaticonIcons";
-import { useLocale } from "@/i18n";
+import { stripLocaleFromPath, useLocale } from "@/i18n";
 
 const menuLinks = [{ label: "Home", href: "/" }, ...navLinks].map((link) => ({
   ...link,
@@ -84,7 +84,7 @@ function getDateTime(locale: "en" | "fr" | "ar" | "de" | "es") {
 
 export default function Header() {
   const { locale, setLocale } = useLocale();
-  const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  const currentPath = stripLocaleFromPath(window.location.pathname).replace(/\/+$/, "") || "/";
   const [dateTime, setDateTime] = useState(() => getDateTime(locale));
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { stripLocaleFromPath } from "@/i18n";
 
 const buttonSelector = [
   "button:not(:disabled):not([aria-label='Open menu']):not([aria-label='Close menu']):not([data-language-selector]):not([data-language-option])",
@@ -10,7 +11,7 @@ const buttonSelector = [
 
 export function useGlobalButtonMotion() {
   useEffect(() => {
-    const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+    const currentPath = stripLocaleFromPath(window.location.pathname).replace(/\/+$/, "") || "/";
     if (currentPath === "/") return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

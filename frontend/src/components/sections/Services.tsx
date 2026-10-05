@@ -16,7 +16,7 @@ function ServiceCard({
   desc: string;
 }) {
   return (
-    <div className="group flex h-full w-full min-h-[290px] min-w-0 flex-col justify-between gap-8 overflow-hidden rounded-[28px] border border-black/5 bg-[#f2f2f2] px-4 pb-5 pt-4 shadow-[0_12px_24px_rgba(15,23,42,0.02)] transition-all duration-300 hover:-translate-y-1 hover:border-black/10 hover:bg-[#f8f8f7] hover:shadow-[0_18px_38px_rgba(15,23,42,0.06)] sm:min-h-[330px] sm:px-5 sm:pb-6 sm:pt-5 md:min-h-[380px] md:gap-12 md:px-6 md:pb-7 md:pt-5">
+    <div className="group flex h-full w-full min-h-[290px] min-w-0 flex-col justify-between gap-8 overflow-hidden rounded-[28px] border border-black/5 bg-[#f2f2f2] px-4 pb-5 pt-4 shadow-[0_12px_24px_rgba(15,23,42,0.02)] transition-all duration-300 hover:-translate-y-2 hover:scale-[1.01] hover:border-black/10 hover:bg-[#f8f8f7] hover:shadow-[0_22px_48px_rgba(15,23,42,0.12)] sm:min-h-[330px] sm:px-5 sm:pb-6 sm:pt-5 md:min-h-[380px] md:gap-12 md:px-6 md:pb-7 md:pt-5">
       <div className="flex min-w-0 items-center justify-between gap-3">
         <div className="flex shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/80 px-3 py-[10px] font-inter text-[10px] font-bold uppercase tracking-[0.08em] text-black sm:px-4 sm:py-[12px] sm:text-[11px] md:text-[13px]">
           {label}
@@ -29,10 +29,10 @@ function ServiceCard({
         </div>
       </div>
       <div className="flex flex-col gap-4 tracking-[-0.06em] text-black md:gap-6">
-        <p className="min-w-0 break-words font-sora text-[clamp(1.9rem,7vw,2.8rem)] font-semibold leading-[1] md:text-[clamp(2.2rem,3vw,3.5rem)] lg:text-[48px]">
+        <p className="min-h-[2em] min-w-0 break-normal font-sora text-[clamp(1.9rem,6vw,2.7rem)] font-semibold leading-[1] md:text-[clamp(2.1rem,2.8vw,3.3rem)] lg:text-[44px]">
           {title}
         </p>
-        <p className="min-w-0 break-words font-inter text-[0.92rem] font-normal leading-[1.5] text-black/80 sm:text-[0.97rem] md:text-[1.05rem] lg:text-[1.125rem]">
+        <p className="min-h-[4.5em] min-w-0 break-words font-inter text-[0.92rem] font-normal leading-[1.5] text-black/80 sm:text-[0.97rem] md:text-[1.05rem] lg:text-[1.125rem]">
           {desc}
         </p>
       </div>
@@ -42,40 +42,16 @@ function ServiceCard({
 
 export function Services() {
   const servicesHeadingRef = useRef<HTMLHeadingElement>(null);
-  const servicesTrackRef = useRef<HTMLDivElement>(null);
-  const [activeServiceDot, setActiveServiceDot] = useState(0);
-  const publishedServices = services.filter((service) => service.published).sort((a, b) => a.order - b.order || a.id - b.id);
-  const featuredServices = publishedServices.filter((service) => service.featured);
-  const featuredIds = new Set(featuredServices.map((service) => service.id));
-  const visibleServices = [
-    ...featuredServices,
-    ...publishedServices.filter((service) => !featuredIds.has(service.id)),
-  ].slice(0, 3);
+  const serviceCardsPageRef = useRef<HTMLDivElement>(null);
+  const homeServices = services
+    .filter((service) => service.published)
+    .sort((a, b) => a.order - b.order || a.id - b.id)
+    .slice(0, 3);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
   }, []);
-
-  const handleServicesScroll = () => {
-    const track = servicesTrackRef.current;
-
-    if (!track) return;
-
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    setActiveServiceDot(maxScroll > 0 && track.scrollLeft >= maxScroll / 2 ? 1 : 0);
-  };
-
-  const scrollServicesTo = (page: 0 | 1) => {
-    const track = servicesTrackRef.current;
-
-    if (!track) return;
-
-    track.scrollTo({
-      left: page === 0 ? 0 : track.scrollWidth - track.clientWidth,
-      behavior: "smooth",
-    });
-  };
 
   useEffect(() => {
     const heading = servicesHeadingRef.current;
@@ -96,6 +72,27 @@ export function Services() {
     }, heading);
 
     return () => ctx.revert();
+  }, []);
+
+  useEffect(() => {
+    const container = serviceCardsPageRef.current;
+    if (!container || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const cards = container.querySelectorAll<HTMLElement>("[data-service-slide]");
+    gsap.fromTo(
+      cards,
+      { autoAlpha: 0, x: 20 },
+      {
+        autoAlpha: 1,
+        x: 0,
+        duration: 0.4,
+        stagger: 0.07,
+        ease: "power2.out",
+        clearProps: "transform,opacity,visibility",
+      },
+    );
+
+    return () => gsap.killTweensOf(cards);
   }, []);
 
   return (
@@ -134,41 +131,24 @@ export function Services() {
           </div>
 
           <div className="flex w-full flex-col gap-3">
-            {visibleServices.length === 0 && <p className="py-8 text-center font-inter text-sm text-black/55">There are no published services yet.</p>}
-            {visibleServices.length > 0 && <>
+            {homeServices.length === 0 && <p className="py-8 text-center font-inter text-sm text-black/55">There are no published services yet.</p>}
+            {homeServices.length > 0 && <>
             <div
-              ref={servicesTrackRef}
-              onScroll={handleServicesScroll}
-              className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
+              ref={serviceCardsPageRef}
+              className="flex snap-x snap-mandatory scroll-px-4 gap-6 overflow-x-auto scroll-smooth px-4 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              {visibleServices.map((service, index) => (
+              {homeServices.map((service) => (
                 <div
                   key={service.id}
                   data-service-slide
-                  className="w-[85%] shrink-0 snap-start sm:w-auto sm:shrink sm:snap-none"
+                  className="w-[85%] shrink-0 snap-start sm:w-[calc((100%_-_1.5rem)/2)] lg:w-[calc((100%_-_3rem)/3)]"
                 >
                   <ServiceCard
-                    label={`Service ${String(index + 1).padStart(2, "0")}`}
+                    label={`Service ${service.number}`}
                     title={service.title}
                     desc={service.short_description}
                   />
                 </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-center gap-2 pt-1 sm:hidden">
-              {(visibleServices.length > 1 ? [0, 1] : [0]).map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  aria-label={page === 0 ? "Show first services" : "Show more services"}
-                  aria-current={activeServiceDot === page ? "true" : undefined}
-                  onClick={() => scrollServicesTo(page as 0 | 1)}
-                  className={`h-2 rounded-full transition-all duration-300 ease-out ${
-                    activeServiceDot === page
-                      ? "w-5 bg-black"
-                      : "w-2 bg-black/25 hover:bg-black/50"
-                  }`}
-                />
               ))}
             </div>
             </>}

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { isAppRoutePath, localeFromPath, localizePath, stripLocaleFromPath } from "@/i18n";
 
 const storageKey = "dotcode-page-transition";
 const visitedKey = "dotcode-page-transition-visited";
@@ -65,7 +66,7 @@ function readIncomingTransition(): TransitionState {
 }
 
 function pageLabel(pathname: string): string {
-  const path = pathname.replace(/\/+$/, "") || "/";
+  const path = stripLocaleFromPath(pathname).replace(/\/+$/, "") || "/";
   const labels: Record<string, string> = {
     "/": "Home",
     "/services": "Services",
@@ -166,6 +167,11 @@ export function PageTransition() {
       }
 
       if (destination.origin !== window.location.origin) return;
+
+      const activeLocale = localeFromPath(window.location.pathname) ?? "en";
+      if (isAppRoutePath(destination.pathname)) {
+        destination.pathname = localizePath(destination.pathname, activeLocale);
+      }
 
       const samePath = normalizePath(destination.pathname) === normalizePath(window.location.pathname);
       const samePageTargetChanged =

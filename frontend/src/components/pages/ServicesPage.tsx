@@ -7,12 +7,12 @@ import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
 const serviceTagsBySlug: Record<string, string[]> = {
-  "web-development": ["Websites", "Web apps", "E-commerce"],
-  "mobile-applications": ["iOS & Android", "React Native", "API integration"],
-  "saas-digital-products": ["Product architecture", "Platforms", "Payments"],
-  "ai-solutions": ["AI integrations", "Automation", "Workflows"],
-  "ui-ux-product-design": ["Product thinking", "User journeys", "Interfaces"],
-  "custom-software": ["Integrations", "Internal tools", "Scalable systems"],
+  "web-development": ["Websites", "Web applications", "Responsive design"],
+  "mobile-development": ["iOS", "Android", "Mobile experience"],
+  "saas-development": ["Product architecture", "Subscriptions", "Scalability"],
+  "ai-solutions": ["AI integrations", "Automation", "Business workflows"],
+  "ui-ux-design": ["User experience", "Interfaces", "Product design"],
+  "custom-software": ["Business systems", "Custom workflows", "Integrations"],
 };
 
 const capabilities = [
@@ -107,12 +107,12 @@ export function ServicesPage() {
             </div>
             <div id="service-offerings" data-reveal-stagger className="border-t border-black/10">
               {publishedServices.length === 0 && <p className="border-b border-black/10 py-8 font-inter text-sm text-black/55">There are no published services yet.</p>}
-              {publishedServices.map((service, index) => (
+              {publishedServices.map((service) => (
                 <article key={service.id} className="group relative grid grid-cols-12 items-center gap-4 border-b border-black/10 px-1 py-7 transition-colors duration-300 sm:gap-5 sm:py-9 md:py-10">
                   <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/[0.018] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <span className="relative col-span-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="relative col-span-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{service.number}</span>
                   <h3 className="relative col-span-9 font-sora text-[clamp(1.45rem,4vw,2rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-black transition-transform duration-300 group-hover:translate-x-0.5 md:col-span-4"><a href={`/services/${encodeURIComponent(service.slug)}`} className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">{service.title}</a></h3>
-                  <p className="relative col-span-9 col-start-2 font-inter text-[13px] leading-[1.55] text-black/55 sm:text-sm md:col-span-4 md:col-start-6">{service.description}</p>
+                  <p className="relative col-span-9 col-start-2 font-inter text-[13px] leading-[1.55] text-black/55 sm:text-sm md:col-span-4 md:col-start-6">{service.short_description}</p>
                   <div className="relative col-span-9 col-start-2 flex flex-wrap gap-x-4 gap-y-1.5 md:col-span-2 md:col-start-10 md:gap-x-3">{(serviceTagsBySlug[service.slug] ?? []).map((tag) => <span key={tag} className="font-inter text-[9px] font-semibold uppercase tracking-[0.1em] text-black/35 sm:text-[10px]">{tag}</span>)}</div>
                   <a href="https://wa.me/213656264776" target="_blank" rel="noreferrer" aria-label={`Ask about ${service.title} on WhatsApp`} className="group/arrow relative col-span-2 col-start-11 row-start-1 flex size-9 shrink-0 justify-self-end items-center justify-center rounded-full border border-black/10 text-black/55 transition-colors duration-300 hover:border-[#455CE9] hover:bg-[#455CE9] hover:text-white group-hover:border-[#455CE9] group-hover:bg-[#455CE9] group-hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] md:col-span-1 md:col-start-12">
                     <ArrowUpRight aria-hidden="true" className="size-4" />
