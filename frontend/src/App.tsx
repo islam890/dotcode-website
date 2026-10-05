@@ -22,6 +22,7 @@ import { ContactRoutePage } from "@/components/pages/ContactRoutePage";
 import { useGlobalButtonMotion } from "@/hooks/useGlobalButtonMotion";
 import { useRevealAnimations } from "@/hooks/useRevealAnimations";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { useLocale } from "@/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,6 +41,7 @@ function FooterRevealCurve() {
 
 export default function App() {
   const rootRef = useRevealAnimations<HTMLDivElement>();
+  const { locale } = useLocale();
   useGlobalButtonMotion();
   const footerRevealSpacerRef = useRef<HTMLDivElement>(null);
   const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -82,6 +84,11 @@ export default function App() {
       ? "DotCode Agency builds digital products, AI solutions, and modern software experiences from idea to launch."
       : null,
   );
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [locale]);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

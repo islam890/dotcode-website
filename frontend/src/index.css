@@ -8,6 +8,19 @@
   --font-roboto: "Syne", sans-serif;
 }
 
+@font-face {
+  font-family: "Elgharib Arabic";
+  src: url("/fonts/Elgharib-Hayyakum-Allah-Taweel-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+html[lang="ar"] body,
+html[lang="ar"] body * {
+  font-family: "Elgharib Arabic", sans-serif !important;
+}
+
 :root {
   --dotcode-black: #0a0a0a;
   --dotcode-bg: #f5f5f3;
@@ -29,6 +42,92 @@ html[dir="rtl"] .text-left {
 
 html[dir="rtl"] .text-right {
   text-align: left;
+}
+
+html[dir="rtl"] svg[class*="lucide-arrow-"] {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] [data-marquee-copy] {
+  direction: rtl;
+}
+
+html[dir="rtl"] [data-announcement-copy] {
+  align-self: flex-start;
+  align-items: flex-start;
+  text-align: right;
+}
+
+html[lang="fr"] [data-announcement-heading] {
+  font-size: clamp(1.35rem, 3.5vw, 2.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  text-transform: none;
+}
+
+html[lang="fr"] [data-home-hero-title] {
+  position: relative;
+  left: calc((100% - min(96vw, 1100px)) / 2);
+  width: min(96vw, 1100px);
+  max-width: none;
+  font-size: clamp(1.125rem, 5vw, 2.625rem);
+}
+
+html[lang="fr"] [data-announcement-heading] > span {
+  display: inline;
+}
+
+html[lang="de"] [data-announcement-heading] {
+  max-width: min(100%, 520px);
+  font-size: clamp(1.4rem, 3.7vw, 3.5rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  text-transform: none;
+}
+
+html[lang="de"] [data-announcement-heading] > span {
+  display: inline;
+}
+
+html[lang="de"] [data-announcement-description] {
+  max-width: min(100%, 500px);
+  font-size: clamp(0.8rem, 1.25vw, 1.125rem);
+  line-height: 1.25;
+}
+
+html[lang="es"] [data-announcement-heading] {
+  max-width: min(100%, 520px);
+  font-size: clamp(1.4rem, 3.7vw, 3.5rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  text-transform: none;
+}
+
+html[lang="es"] [data-announcement-heading] > span {
+  display: inline;
+}
+
+html[lang="es"] [data-announcement-description] {
+  max-width: min(100%, 500px);
+  font-size: clamp(0.8rem, 1.25vw, 1.125rem);
+  line-height: 1.25;
+}
+
+html[lang="fr"] [data-footer-newsletter-note] {
+  white-space: nowrap;
+  font-size: 9px;
+}
+
+html[lang="fr"] [data-about-hero-copy] {
+  font-size: clamp(1.3rem, 2.9vw, 2.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+@media (min-width: 640px) {
+  html[lang="fr"] [data-footer-newsletter-note] {
+    font-size: 10px;
+  }
 }
 
 html[dir="rtl"] [data-rtl-anchor="end"] {
@@ -239,7 +338,6 @@ button {
 
   [data-hero-cards] {
     height: clamp(9rem, 16vw, 13rem) !important;
-    margin-top: 0.75rem !important;
   }
 
   .hero-card {
@@ -303,7 +401,6 @@ button {
   --hero-card-edge-inset: clamp(1.5rem, 5.5vw, 4rem);
   width: calc(100vw - var(--hero-card-edge-inset) - var(--hero-card-edge-inset));
   height: clamp(12rem, 24vw, 18rem);
-  margin-top: 1.5rem;
   margin-left: calc(50% - 50vw + var(--hero-card-edge-inset));
   overflow: hidden;
   perspective: 1200px;
@@ -312,6 +409,7 @@ button {
 .hero-card-track {
   position: relative;
   display: flex;
+  direction: ltr;
   align-items: center;
   justify-content: flex-start;
   gap: clamp(0.35rem, 1.6vw, 1.75rem);
@@ -366,7 +464,6 @@ button {
     width: calc(100% - var(--hero-card-edge-inset) - var(--hero-card-edge-inset));
     height: 8rem;
     margin-left: var(--hero-card-edge-inset);
-    margin-top: 1rem;
   }
 
   .hero-card-track {

@@ -4,6 +4,7 @@ import { images } from "@/data/site";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { useLocale } from "@/i18n";
 
 const heroCards = [
   { src: "/assets/hero-card-1.png", alt: "Income and expense dashboard" },
@@ -16,6 +17,7 @@ const heroCards = [
 ] as const;
 
 export function Hero() {
+  const { locale } = useLocale();
   const heroCardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -183,9 +185,17 @@ export function Hero() {
                 <h1
                   data-anim="hero-head"
                   data-hero-title
+                  data-home-hero-title
                   className="w-full max-w-full text-balance font-sora text-[clamp(1.85rem,7vw,4.2rem)] font-extrabold leading-[0.96] tracking-[-1.5px] text-white md:text-[clamp(2.6rem,4vw,4.4rem)] lg:text-[42px]"
                 >
-                  We build digital products
+                  {locale === "fr" ? (
+                    <>
+                      Nous créons des<br />
+                      produits numériques
+                    </>
+                  ) : (
+                    "We build digital products"
+                  )}
                 </h1>
 
                 <p
@@ -208,7 +218,8 @@ export function Hero() {
                 solutions, and technology built for growth.
               </p>
 
-              {/* CTA */}
+              {/* CTA and cards share a fixed gap across locales. */}
+              <div className="flex w-full flex-col items-center gap-4 sm:gap-6">
               <div
                 data-anim="hero-cta"
                 className="flex flex-wrap items-center justify-center gap-2 sm:gap-3"
@@ -271,6 +282,7 @@ export function Hero() {
                     );
                   })}
                 </div>
+              </div>
               </div>
             </div>
           </div>

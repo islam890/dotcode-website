@@ -165,7 +165,7 @@ export function Footer() {
                 </button>
               </div>
 
-              <p className="font-sora text-[12px] leading-[1.3] sm:text-[13px]">
+              <p data-footer-newsletter-note className="font-sora text-[12px] leading-[1.3] sm:text-[13px]">
                 <span className="text-[#8d8d8d]">
                   Newsletter sign-ups are currently unavailable.{" "}
                 </span>

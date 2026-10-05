@@ -31,14 +31,15 @@ export function Announcement() {
         <div className="absolute inset-0 flex h-full flex-col justify-between p-4 sm:p-6 md:p-7 lg:p-8">
           <div
             data-reveal
+            data-announcement-copy
             className="flex max-w-[46%] flex-col items-end gap-4 self-end text-right sm:max-w-[40%] sm:gap-5 md:max-w-[37%] md:gap-6"
           >
-            <h2 className="max-w-[220px] font-sora text-[clamp(1.65rem,4.7vw,2.6rem)] font-semibold capitalize leading-[1] tracking-[-0.06em] text-black sm:max-w-[260px] sm:text-[clamp(1.9rem,4vw,2.75rem)] md:max-w-[320px] md:text-[clamp(2.1rem,3vw,3.05rem)] lg:max-w-[360px] lg:text-[64px]">
-              Got A Digital
+            <h2 data-announcement-heading className="max-w-[220px] font-sora text-[clamp(1.65rem,4.7vw,2.6rem)] font-semibold capitalize leading-[1] tracking-[-0.06em] text-black sm:max-w-[260px] sm:text-[clamp(1.9rem,4vw,2.75rem)] md:max-w-[320px] md:text-[clamp(2.1rem,3vw,3.05rem)] lg:max-w-[360px] lg:text-[64px]">
+              Got A Digital{" "}
               <span className="block">Idea?</span>
             </h2>
 
-            <p className="max-w-[205px] font-sora text-[0.65rem] font-normal leading-[1.2] text-black/80 sm:max-w-[245px] sm:text-[0.82rem] md:max-w-[310px] md:text-[0.99rem] lg:max-w-[350px] lg:text-[1.5rem]">
+            <p data-announcement-description className="max-w-[205px] font-sora text-[0.65rem] font-normal leading-[1.2] text-black/80 sm:max-w-[245px] sm:text-[0.82rem] md:max-w-[310px] md:text-[0.99rem] lg:max-w-[350px] lg:text-[1.5rem]">
               From the first concept to the
               <span className="block">final product, we combine</span>
               <span className="block">

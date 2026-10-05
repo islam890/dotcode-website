@@ -3,33 +3,50 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChartPie, Lightbulb } from "lucide-react";
 import { images } from "@/data/site";
+import { useLocale } from "@/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function About() {
+  const { locale } = useLocale();
   const aboutTextRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const text = aboutTextRef.current;
+    if (!text) return;
+
+    let context: gsap.Context | undefined;
+    const frame = window.requestAnimationFrame(() => {
+      context = gsap.context(() => {
+        gsap.to(text.querySelectorAll("[data-about-text]"), {
+          color: "#000000",
+          stagger: 0.12,
+          ease: "none",
+          scrollTrigger: {
+            trigger: text,
+            start: "top 80%",
+            end: "top 35%",
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+      }, text);
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      context?.revert();
+    };
+  }, [locale]);
+
+  useEffect(() => {
     const stats = statsRef.current;
 
-    if (!text || !stats) return;
+    if (!stats) return;
 
     const ctx = gsap.context(() => {
-      // About statement: grey → black on scroll
-      gsap.to("[data-about-text]", {
-        color: "#000000",
-        stagger: 0.12,
-        ease: "none",
-        scrollTrigger: {
-          trigger: text,
-          start: "top 80%",
-          end: "top 35%",
-          scrub: true,
-        },
-      });
-
       // Animated counters
       const counters = stats.querySelectorAll<HTMLElement>("[data-counter]");
 

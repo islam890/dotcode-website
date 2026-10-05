@@ -92,6 +92,8 @@ export default function Header() {
   const selectedLanguage = supportedLanguages.find(
     (language) => language.code.toLowerCase() === locale,
   ) ?? supportedLanguages[0];
+  const menuOpenRef = useRef(menuOpen);
+  menuOpenRef.current = menuOpen;
 
   const navbarRef = useRef<HTMLElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -480,10 +482,11 @@ export default function Header() {
 
     const linkTexts = menuLinksRef.current;
     const socialLinks = menuSocialsRef.current;
+    const menuOriginX = locale === "ar" ? "0%" : "100%";
 
     const context = gsap.context(() => {
       gsap.set(panel, {
-        clipPath: "ellipse(0% 76% at 100% 50%)",
+        clipPath: `ellipse(0% 76% at ${menuOriginX} 50%)`,
       });
 
       gsap.set(overlay, {
@@ -587,7 +590,7 @@ export default function Header() {
         .to(
           panel,
           {
-            clipPath: "ellipse(130% 180% at 100% 50%)",
+            clipPath: `ellipse(130% 180% at ${menuOriginX} 50%)`,
             duration: 0.72,
             ease: "power4.inOut",
           },
@@ -658,6 +661,8 @@ export default function Header() {
         );
       menuTimelineRef.current = menuTimeline;
       buttonTimelineRef.current = buttonTimeline;
+      menuTimeline.progress(menuOpenRef.current ? 1 : 0).pause();
+      buttonTimeline.progress(menuOpenRef.current ? 1 : 0).pause();
     }, button);
 
     return () => {
@@ -665,7 +670,7 @@ export default function Header() {
       menuTimelineRef.current = null;
       buttonTimelineRef.current = null;
     };
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     const menuTimeline = menuTimelineRef.current;

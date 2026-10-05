@@ -152,6 +152,7 @@ export function AgencyMarquee() {
           <div
             ref={trackRef}
             data-marquee-track
+            dir="ltr"
             className="flex w-max items-center whitespace-nowrap will-change-transform"
           >
             {Array.from(
@@ -162,7 +163,7 @@ export function AgencyMarquee() {
                   aria-hidden={index > 0}
                   className="shrink-0 pr-10 sm:pr-14 md:pr-20"
                 >
-                  <span className="font-sora text-[clamp(2rem,7vw,6rem)] font-semibold leading-none tracking-[-0.06em] text-[#9a9a9a]">
+                  <span data-marquee-copy className="font-sora text-[clamp(2rem,7vw,6rem)] font-semibold leading-none tracking-[-0.06em] text-[#9a9a9a]">
                     {agencyLabel}
                   </span>
                 </div>

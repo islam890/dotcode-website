@@ -65,7 +65,7 @@ export function AboutPage() {
               <h1 data-anim="hero-head" data-hero-title className="font-sora text-[clamp(3.6rem,12vw,9rem)] font-semibold leading-[0.82] tracking-[-0.08em] text-white">Who we are<span className="text-[#b7ff3c]">.</span></h1>
             </div>
             <div className="flex flex-col items-start gap-7 md:col-span-4 md:pb-2">
-              <p data-anim="hero-copy" className="max-w-[460px] font-sora text-[clamp(1.45rem,3.5vw,2.8rem)] font-medium leading-[1.05] tracking-[-0.055em] text-white">We build digital products that move ideas forward.</p>
+              <p data-anim="hero-copy" data-about-hero-copy className="max-w-[460px] font-sora text-[clamp(1.45rem,3.5vw,2.8rem)] font-medium leading-[1.05] tracking-[-0.055em] text-white">We build digital products that move ideas forward.</p>
               <p data-anim="hero-copy" className="max-w-[390px] font-inter text-sm leading-[1.65] text-white/75 sm:text-base">Software, design and AI — brought together to make useful things for people and businesses.</p>
               <a data-anim="hero-cta" href="#who-we-are" className="group flex items-center gap-3 font-inter text-[10px] font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:text-[#b7ff3c] sm:text-xs"><span>Get to know us</span><span className="flex size-9 items-center justify-center rounded-full border border-white/35 transition-all duration-300 group-hover:border-[#b7ff3c] group-hover:bg-[#b7ff3c] group-hover:text-black"><ArrowDown className="size-4" aria-hidden="true" /></span></a>
             </div>
