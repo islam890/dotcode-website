@@ -1,17 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowUpRight, RotateCw } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ApiError } from "@/api/client";
-import { getProjectBySlug, getProjects } from "@/api/projects";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
-import { conceptProjects, type Project } from "@/data/projects";
+import { allProjects, type Project } from "@/data/projects";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
-type LoadState = "loading" | "ready" | "not-found" | "error";
-
 function projectRoute(slug: string) {
-  return `/work/${encodeURIComponent(slug)}`;
+  return `/projects/${encodeURIComponent(slug)}`;
 }
 
 function orderProjects(items: Project[]) {
@@ -43,63 +39,13 @@ function ProjectShowcase({ project }: { project: Project }) {
 }
 
 export function ProjectDetailPage({ slug }: { slug: string }) {
-  const [project, setProject] = useState<Project | null>(null);
-  const [projects, setProjects] = useState<Project[]>(conceptProjects);
-  const [state, setState] = useState<LoadState>("loading");
-  const [retryKey, setRetryKey] = useState(0);
+  const projects = useMemo(() => orderProjects(allProjects), []);
+  const project = projects.find((item) => item.slug === slug) ?? null;
 
   useEffect(() => {
-    const controller = new AbortController();
-    const localConcept = conceptProjects.find((item) => item.slug === slug);
-    setState("loading");
-    setProject(null);
-
-    if (localConcept) {
-      setProject(localConcept);
-      setProjects(orderProjects(conceptProjects));
-      setState("ready");
-
-      getProjects(controller.signal)
-        .then((publishedProjects) => {
-          if (controller.signal.aborted) return;
-          setProjects(orderProjects([...publishedProjects, ...conceptProjects]));
-        })
-        .catch(() => {
-          // The local concept remains available if the optional next-project list fails.
-        });
-
-      return () => controller.abort();
-    }
-
-    getProjectBySlug(slug, controller.signal)
-      .then(async (realProject) => {
-        if (controller.signal.aborted) return;
-        setProject(realProject);
-        setProjects(orderProjects([...conceptProjects, realProject]));
-        setState("ready");
-
-        try {
-          const publishedProjects = await getProjects(controller.signal);
-          if (controller.signal.aborted) return;
-          setProjects(orderProjects([...publishedProjects, ...conceptProjects]));
-        } catch {
-          // Keep the current project and local concepts available if the optional next-project list fails.
-        }
-      })
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setState(error instanceof ApiError && error.status === 404 ? "not-found" : "error");
-      });
-
-    return () => controller.abort();
-  }, [slug, retryKey]);
-
-  useEffect(() => {
-    if (state !== "ready") return;
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
-  }, [projects, state]);
-
+  }, [projects]);
   usePageMetadata(
     project?.title.trim()
       ? `${project.title} | DotCode Projects`
@@ -113,19 +59,14 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
     return projects[(currentIndex + 1) % projects.length];
   }, [project, projects]);
 
-  if (state === "loading") {
-    return <main className="relative z-10 min-h-dvh bg-white"><Header /><div role="status" className="mx-auto max-w-[1457px] px-4 py-28 font-inter text-sm text-black/55 sm:px-8 lg:px-10">Loading project…</div></main>;
-  }
-
-  if (state === "not-found" || state === "error" || !project) {
+  if (!project) {
     return (
       <main className="relative z-10 min-h-dvh bg-white">
         <Header />
         <section className="mx-auto max-w-[1457px] px-4 py-24 sm:px-8 lg:px-10">
           <p className="font-sora text-sm font-medium tracking-[0.08em] text-black/45">Project /</p>
-          <h1 className="mt-4 font-sora text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-none tracking-[-0.07em]">{state === "error" ? "Projects are taking a moment." : "Project not found."}</h1>
-          <a href="/work" className="mt-8 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9]"><ArrowLeft className="size-4" aria-hidden="true" /> Back to all projects</a>
-          {state === "error" && <button type="button" onClick={() => setRetryKey((key) => key + 1)} className="ml-5 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-black/60"><RotateCw className="size-4" aria-hidden="true" /> Try again</button>}
+          <h1 className="mt-4 font-sora text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-none tracking-[-0.07em]">Project not found.</h1>
+          <a href="/projects" className="mt-8 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9]"><ArrowLeft className="size-4" aria-hidden="true" /> Back to all projects</a>
         </section>
       </main>
     );
@@ -150,7 +91,7 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
               {project.project_url && <a href={project.project_url} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-3 font-inter text-[10px] font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:text-[#b7ff3c] sm:text-xs"><span>Visit live project</span><span className="flex size-9 items-center justify-center rounded-full border border-white/35 transition-colors duration-200 group-hover:border-[#b7ff3c] group-hover:bg-[#b7ff3c] group-hover:text-black"><ArrowUpRight className="size-4" aria-hidden="true" /></span></a>}
             </div>
           </div>
-          <div className="flex items-center justify-between border-t border-white/25 pt-4 font-inter text-[9px] font-medium uppercase tracking-[0.14em] text-white/55 sm:text-[10px]"><span>{project.client_name || (project.isConcept ? "Concept project" : "DotCode")}</span><span>DotCode / Projects</span></div>
+          <div className="flex items-center justify-between border-t border-white/25 pt-4 font-inter text-[9px] font-medium uppercase tracking-[0.14em] text-white/55 sm:text-[10px]"><span>{project.client_name || "DotCode"}</span><span>DotCode / Projects</span></div>
         </div>
       </PageHero>
 
@@ -159,8 +100,8 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
           <div className="md:col-span-4"><p className="font-sora text-sm font-medium tracking-[0.08em] text-black/45">01 / Project details</p><h2 className="mt-5 font-sora text-[clamp(1.8rem,4.5vw,3.5rem)] font-semibold leading-[0.98] tracking-[-0.065em]">A closer look.</h2></div>
           <dl aria-label="Project information" className="grid gap-7 sm:grid-cols-2 md:col-span-8 md:grid-cols-4">
             <ProjectFact label="Role / Services" value={project.category} />
-            <ProjectFact label="Client" value={project.client_name || (project.isConcept ? "DotCode concept" : "DotCode")} />
-            <ProjectFact label="Project type" value={project.isConcept ? "Concept project" : "Digital product"} />
+            <ProjectFact label="Client" value={project.client_name || "DotCode"} />
+            <ProjectFact label="Project type" value="Digital product" />
             <ProjectFact label="Year" value={String(year)} />
           </dl>
         </div>
@@ -179,7 +120,7 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
               <div className="flex items-center justify-between gap-5"><p className="font-inter text-[9px] font-bold uppercase tracking-[0.16em] text-white/55 sm:text-[10px]">Next case / {nextProject.category}</p><span className="flex size-11 items-center justify-center rounded-full border border-white/25 transition-colors duration-200 group-hover:border-[#b7ff3c] group-hover:bg-[#b7ff3c] group-hover:text-black sm:size-14"><ArrowUpRight className="size-5" aria-hidden="true" /></span></div>
               <h2 className="mt-8 font-sora text-[clamp(2.5rem,8vw,7rem)] font-semibold leading-[0.9] tracking-[-0.075em] transition-colors duration-200 group-hover:text-[#b7ff3c]">{nextProject.title}</h2>
             </a>
-            <a href="/work" className="mt-7 inline-flex items-center gap-3 font-inter text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/65 transition-colors hover:text-white sm:mt-9 sm:text-xs"><ArrowLeft className="size-4" aria-hidden="true" /> All projects</a>
+            <a href="/projects" className="mt-7 inline-flex items-center gap-3 font-inter text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/65 transition-colors hover:text-white sm:mt-9 sm:text-xs"><ArrowLeft className="size-4" aria-hidden="true" /> All projects</a>
           </div>
         </section>
       )}

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { getServices, type Service } from "@/api/services";
+import { services } from "@/data/services";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
@@ -47,9 +47,9 @@ const process = [
 ] as const;
 
 export function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [requestKey, setRequestKey] = useState(0);
+  const publishedServices = services
+    .filter((service) => service.published)
+    .sort((a, b) => a.order - b.order || a.id - b.id);
 
   usePageMetadata(
     "Services | DotCode",
@@ -57,30 +57,9 @@ export function ServicesPage() {
   );
 
   useEffect(() => {
-    const controller = new AbortController();
-    setLoadState("loading");
-
-    getServices(controller.signal)
-      .then((publishedServices) => {
-        const orderedServices = publishedServices
-          .filter((service) => service.published)
-          .sort((a, b) => a.order - b.order || a.id - b.id);
-        setServices(orderedServices);
-        setLoadState("ready");
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
-        setLoadState("error");
-      });
-
-    return () => controller.abort();
-  }, [requestKey]);
-
-  useEffect(() => {
-    if (loadState !== "ready") return;
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
-  }, [loadState, services]);
+  }, []);
 
   return (
     <>
@@ -127,10 +106,8 @@ export function ServicesPage() {
               <p className="max-w-[330px] font-inter text-sm leading-relaxed text-black/55 md:col-span-4 md:justify-self-end">A close-knit team for the full journey, from the first conversation to a product people rely on.</p>
             </div>
             <div id="service-offerings" data-reveal-stagger className="border-t border-black/10">
-              {loadState === "loading" && <p role="status" className="border-b border-black/10 py-8 font-inter text-sm text-black/55">Loading services…</p>}
-              {loadState === "error" && <div role="alert" className="border-b border-black/10 py-8"><p className="font-inter text-sm text-black/60">We couldn&rsquo;t load services right now.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-3 font-inter text-xs font-bold uppercase tracking-[0.08em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">Try again</button></div>}
-              {loadState === "ready" && services.length === 0 && <p className="border-b border-black/10 py-8 font-inter text-sm text-black/55">There are no published services yet.</p>}
-              {loadState === "ready" && services.map((service, index) => (
+              {publishedServices.length === 0 && <p className="border-b border-black/10 py-8 font-inter text-sm text-black/55">There are no published services yet.</p>}
+              {publishedServices.map((service, index) => (
                 <article key={service.id} className="group relative grid grid-cols-12 items-center gap-4 border-b border-black/10 px-1 py-7 transition-colors duration-300 sm:gap-5 sm:py-9 md:py-10">
                   <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/[0.018] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="relative col-span-1 font-mono text-[10px] text-black/30 transition-colors group-hover:text-[#455CE9]">{String(index + 1).padStart(2, "0")}</span>

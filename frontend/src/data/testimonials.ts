@@ -1,5 +1,3 @@
-import { requestJson } from "@/api/client";
-
 export type Testimonial = {
   id: number;
   client_name: string;
@@ -8,8 +6,9 @@ export type Testimonial = {
   content: string;
   avatar_url: string | null;
   published: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
-export function getTestimonials(signal?: AbortSignal): Promise<Testimonial[]> {
-  return requestJson<Testimonial[]>("/testimonials/", { signal });
-}
+// Add real client testimonials here when they are ready to publish.
+export const testimonials: Testimonial[] = [];

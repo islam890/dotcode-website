@@ -18,22 +18,31 @@ export function useRevealAnimations<T extends HTMLElement>() {
         delay: 0.8,
         defaults: { ease: "power3.out" },
       });
-      heroTimeline
-        .from(
-          '[data-anim="hero-head"]',
+      const heroHead = self.selector!('[data-anim="hero-head"]');
+      const heroCopy = self.selector!('[data-anim="hero-copy"]');
+      const heroCta = self.selector!('[data-anim="hero-cta"]');
+
+      if (heroHead.length) {
+        heroTimeline.from(
+          heroHead,
           { y: 40, opacity: 0, duration: 0.9, stagger: 0.12 },
           "-=0.4",
-        )
-        .from(
-          '[data-anim="hero-copy"]',
+        );
+      }
+      if (heroCopy.length) {
+        heroTimeline.from(
+          heroCopy,
           { y: 30, opacity: 0, duration: 0.8 },
           "-=0.5",
-        )
-        .from(
-          '[data-anim="hero-cta"]',
+        );
+      }
+      if (heroCta.length) {
+        heroTimeline.from(
+          heroCta,
           { y: 20, opacity: 0, duration: 0.7 },
           "-=0.5",
         );
+      }
 
       const heroObject = self.selector!('[data-anim="hero-object"]');
       if (heroObject.length) {

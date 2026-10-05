@@ -4,7 +4,6 @@ export const images = {
   world: `${assetPathPrefix}/e74d9.svg`,
   heroSection: `${assetPathPrefix}/c8f23.png`,
   group61: `${assetPathPrefix}/727fa.png`,
-  object: `${assetPathPrefix}/e38ba.png`,
   att: `${assetPathPrefix}/1a426.png`,
   atlassian: `${assetPathPrefix}/523c2.png`,
   forbes: `${assetPathPrefix}/d564e.png`,
@@ -40,7 +39,7 @@ export const images = {
 export const navLinks = [
   { label: "services", href: "/services" },
   { label: "about us", href: "/about" },
-  { label: "Our Projects", href: "/work" },
+  { label: "Our Projects", href: "/projects" },
   { label: "Testimonials", href: "/testimonials" },
 ] as const;
 

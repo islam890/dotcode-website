@@ -1,47 +1,10 @@
-﻿import { useEffect, useRef, useState } from "react";
-import { ArrowDown, RotateCw } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ArrowDown } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { getTestimonials, type Testimonial as ApiTestimonial } from "@/api/testimonials";
+import { testimonials as publishedTestimonials, type Testimonial } from "@/data/testimonials";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
-
-
-type LoadState = "loading" | "ready" | "error";
-type Testimonial = ApiTestimonial & { isSample?: boolean };
-
-const sampleTestimonials: Testimonial[] = [
-  {
-    id: -1,
-    client_name: "Amine B.",
-    client_role: "Founder",
-    company_name: "Morrow House · sample project",
-    content: "The team helped us turn an early idea into a clear, polished digital experience. The process felt thoughtful from the first conversation to launch.",
-    avatar_url: null,
-    published: true,
-    isSample: true,
-  },
-  {
-    id: -2,
-    client_name: "Lina K.",
-    client_role: "Product lead",
-    company_name: "Orbit Desk · sample project",
-    content: "DotCode brought structure to a complicated product brief and kept every decision focused on the people who would use it.",
-    avatar_url: null,
-    published: true,
-    isSample: true,
-  },
-  {
-    id: -3,
-    client_name: "Yacine M.",
-    client_role: "Business owner",
-    company_name: "Concept project",
-    content: "Communication was clear, the details were carefully considered, and the final direction gave us a strong foundation to build on.",
-    avatar_url: null,
-    published: true,
-    isSample: true,
-  },
-];
 
 function getInitials(name: string) {
   return name
@@ -137,7 +100,6 @@ function TestimonialMarquee({ testimonials }: { testimonials: Testimonial[] }) {
             <div>
               <div className="mb-7 flex items-start justify-between gap-4">
                 <span aria-hidden="true" className="font-sora text-5xl leading-[0.7] tracking-[-0.08em] text-[#455CE9]">&ldquo;</span>
-                {testimonial.isSample && <span className="rounded-full border border-black/10 px-2.5 py-1 font-inter text-[8px] font-bold uppercase tracking-[0.1em] text-black/40">Sample</span>}
               </div>
               <blockquote className="font-sora text-[clamp(1.15rem,2.3vw,1.65rem)] font-medium leading-[1.22] tracking-[-0.045em] text-black">{testimonial.content}</blockquote>
             </div>
@@ -150,9 +112,7 @@ function TestimonialMarquee({ testimonials }: { testimonials: Testimonial[] }) {
 }
 
 export function TestimonialsPage() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [state, setState] = useState<LoadState>("loading");
-  const [requestKey, setRequestKey] = useState(0);
+  const testimonials = publishedTestimonials.filter((testimonial) => testimonial.published);
 
   usePageMetadata(
     "Testimonials | DotCode",
@@ -160,29 +120,9 @@ export function TestimonialsPage() {
   );
 
   useEffect(() => {
-    const controller = new AbortController();
-    setState("loading");
-
-    getTestimonials(controller.signal)
-      .then((publishedTestimonials) => {
-        const visibleTestimonials = publishedTestimonials.filter((testimonial) => testimonial.published);
-        setTestimonials(visibleTestimonials.length ? visibleTestimonials : sampleTestimonials);
-        setState("ready");
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
-        setTestimonials([]);
-        setState("error");
-      });
-
-    return () => controller.abort();
-  }, [requestKey]);
-
-  useEffect(() => {
-    if (state !== "ready") return;
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
-  }, [state, testimonials]);
+  }, []);
 
   return (
     <>
@@ -225,13 +165,14 @@ export function TestimonialsPage() {
               <p className="max-w-[330px] font-inter text-sm leading-relaxed text-black/60">Honest feedback from people we&rsquo;ve had the pleasure of working with.</p>
             </div>
 
-            {state === "loading" && <div role="status" className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">Loading client stories…</div>}
-            {state === "error" && <div role="alert" className="border-y border-black/15 py-12 text-center"><p className="font-sora text-xl font-semibold tracking-[-0.04em]">Client stories are taking a moment.</p><p className="mt-2 font-inter text-sm text-black/55">We couldn&rsquo;t load testimonials right now.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-black px-4 py-2.5 font-inter text-[10px] font-extrabold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"><RotateCw className="size-3.5" aria-hidden="true" /> Try again</button></div>}
-
-            {state === "ready" && <>
-              {testimonials.some((testimonial) => testimonial.isSample) && <p className="mb-4 font-inter text-[9px] font-bold uppercase tracking-[0.12em] text-black/40">Sample testimonials for layout preview</p>}
+            {testimonials.length > 0 ? (
               <TestimonialMarquee testimonials={testimonials} />
-            </>}
+            ) : (
+              <div className="border-y border-black/15 py-14 text-center sm:py-20">
+                <p className="font-sora text-[clamp(1.8rem,5vw,3.2rem)] font-semibold tracking-[-0.06em]">No testimonials yet.</p>
+                <p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-black/60">We&rsquo;ll share client feedback here when it&rsquo;s ready.</p>
+              </div>
+            )}
           </div>
         </section>
 

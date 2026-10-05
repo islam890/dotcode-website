@@ -798,7 +798,7 @@ export default function Header() {
                 currentPath.startsWith("/projects/") ||
                 currentPath.startsWith("/work/");
               const isCurrentPage = href === currentPath ||
-                (href === "/work" && isProjectRoute);
+                (href === "/projects" && isProjectRoute);
 
               return (
                 <a

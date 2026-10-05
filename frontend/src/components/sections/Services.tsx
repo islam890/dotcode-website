@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
-import { getServices, type Service } from "@/api/services";
+import { services } from "@/data/services";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -44,43 +44,18 @@ export function Services() {
   const servicesHeadingRef = useRef<HTMLHeadingElement>(null);
   const servicesTrackRef = useRef<HTMLDivElement>(null);
   const [activeServiceDot, setActiveServiceDot] = useState(0);
-  const [services, setServices] = useState<Service[]>([]);
-  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [requestKey, setRequestKey] = useState(0);
-
-  const featuredServices = services.filter((service) => service.featured);
+  const publishedServices = services.filter((service) => service.published).sort((a, b) => a.order - b.order || a.id - b.id);
+  const featuredServices = publishedServices.filter((service) => service.featured);
   const featuredIds = new Set(featuredServices.map((service) => service.id));
   const visibleServices = [
     ...featuredServices,
-    ...services.filter((service) => !featuredIds.has(service.id)),
+    ...publishedServices.filter((service) => !featuredIds.has(service.id)),
   ].slice(0, 3);
 
   useEffect(() => {
-    const controller = new AbortController();
-    setLoadState("loading");
-
-    getServices(controller.signal)
-      .then((publishedServices) => {
-        setServices(
-          publishedServices
-            .filter((service) => service.published)
-            .sort((a, b) => a.order - b.order || a.id - b.id),
-        );
-        setLoadState("ready");
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
-        setLoadState("error");
-      });
-
-    return () => controller.abort();
-  }, [requestKey]);
-
-  useEffect(() => {
-    if (loadState !== "ready") return;
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
-  }, [loadState, services]);
+  }, []);
 
   const handleServicesScroll = () => {
     const track = servicesTrackRef.current;
@@ -159,10 +134,8 @@ export function Services() {
           </div>
 
           <div className="flex w-full flex-col gap-3">
-            {loadState === "loading" && <p role="status" className="py-8 text-center font-inter text-sm text-black/55">Loading services…</p>}
-            {loadState === "error" && <div role="alert" className="py-6 text-center"><p className="font-inter text-sm text-black/60">We couldn&rsquo;t load services right now.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-3 font-inter text-xs font-bold uppercase tracking-[0.08em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">Try again</button></div>}
-            {loadState === "ready" && visibleServices.length === 0 && <p className="py-8 text-center font-inter text-sm text-black/55">There are no published services yet.</p>}
-            {loadState === "ready" && visibleServices.length > 0 && <>
+            {visibleServices.length === 0 && <p className="py-8 text-center font-inter text-sm text-black/55">There are no published services yet.</p>}
+            {visibleServices.length > 0 && <>
             <div
               ref={servicesTrackRef}
               onScroll={handleServicesScroll}

@@ -1,38 +1,18 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowUpRight, RotateCw } from "lucide-react";
+import { useEffect } from "react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ApiError } from "@/api/client";
-import { getServiceBySlug, type Service } from "@/api/services";
+import { services } from "@/data/services";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 
-type LoadState = "loading" | "ready" | "not-found" | "error";
-
 export function ServiceDetailPage({ slug }: { slug: string }) {
-  const [service, setService] = useState<Service | null>(null);
-  const [state, setState] = useState<LoadState>("loading");
-  const [retryKey, setRetryKey] = useState(0);
+  const service = services.find((item) => item.published && item.slug === slug) ?? null;
 
   useEffect(() => {
-    const controller = new AbortController();
-    setService(null);
-    setState("loading");
-
-    getServiceBySlug(slug, controller.signal)
-      .then((result) => {
-        if (controller.signal.aborted) return;
-        setService(result);
-        setState("ready");
-        window.requestAnimationFrame(() => ScrollTrigger.refresh());
-      })
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setState(error instanceof ApiError && error.status === 404 ? "not-found" : "error");
-      });
-
-    return () => controller.abort();
-  }, [slug, retryKey]);
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   usePageMetadata(
     service?.title.trim()
@@ -41,35 +21,15 @@ export function ServiceDetailPage({ slug }: { slug: string }) {
     service?.short_description.trim() || "Explore a service offered by DotCode.",
   );
 
-  if (state !== "ready" || !service) {
-    const isLoading = state === "loading";
-    const title = isLoading
-      ? "Loading service…"
-      : state === "not-found"
-        ? "Service not found."
-        : "Services are taking a moment.";
-
+  if (!service) {
     return (
       <main className="relative z-10 min-h-dvh bg-white">
         <Header />
         <section className="mx-auto max-w-[1457px] px-4 py-24 sm:px-8 lg:px-10">
-          <h1 role={isLoading ? "status" : undefined} aria-live={isLoading ? "polite" : undefined} className="font-sora text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-none tracking-[-0.07em]">
-            {title}
-          </h1>
-          {state === "error" && (
-            <button
-              type="button"
-              onClick={() => setRetryKey((key) => key + 1)}
-              className="mt-6 inline-flex items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]"
-            >
-              <RotateCw className="size-4" aria-hidden="true" /> Try again
-            </button>
-          )}
-          {state !== "loading" && (
-            <a href="/services" className="mt-6 flex w-fit items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">
-              <ArrowLeft className="size-4" aria-hidden="true" /> All services
-            </a>
-          )}
+          <h1 className="font-sora text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-none tracking-[-0.07em]">Service not found.</h1>
+          <a href="/services" className="mt-6 flex w-fit items-center gap-2 font-inter text-xs font-bold uppercase tracking-[0.12em] text-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9]">
+            <ArrowLeft className="size-4" aria-hidden="true" /> All services
+          </a>
         </section>
       </main>
     );

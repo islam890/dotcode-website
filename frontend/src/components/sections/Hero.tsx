@@ -1,9 +1,162 @@
 ﻿import { Header } from "@/components/layout/Header";
 import { ArrowUpRight, Star } from "lucide-react";
 import { images } from "@/data/site";
-import type { ReactNode } from "react";
+import gsap from "gsap";
+import { useEffect, useRef } from "react";
+import type { CSSProperties, ReactNode } from "react";
+
+const heroCards = [
+  { src: "/assets/hero-card-1.png", alt: "Income and expense dashboard" },
+  { src: "/assets/hero-card-2.png", alt: "Intelligence in every decision chart" },
+  { src: "/assets/hero-card-3.png", alt: "Strategy, data, and artificial intelligence" },
+  { src: "/assets/hero-card-4.png", alt: "Data training interface" },
+  { src: "/assets/hero-card-5.png", alt: "Data points dashboard" },
+  { src: "/assets/hero-card-6.png", alt: "Business performance dashboard" },
+  { src: "/assets/hero-card-7.png", alt: "Live calendar and messages integrations" },
+] as const;
 
 export function Hero() {
+  const heroCardsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const cardsRoot = heroCardsRef.current;
+    if (!cardsRoot) return;
+
+    const track = cardsRoot.querySelector<HTMLElement>(".hero-card-track");
+    const cards = Array.from(
+      cardsRoot.querySelectorAll<HTMLElement>(".hero-card"),
+    );
+    if (!cards.length || !track) return;
+
+    const motion = gsap.matchMedia();
+    gsap.set(cards, { autoAlpha: 1 });
+    motion.add(
+      "(prefers-reduced-motion: no-preference)",
+      () => {
+        const context = gsap.context(() => {
+          const firstSet = cards.slice(0, heroCards.length);
+          const firstClone = cards[heroCards.length];
+          let loopWidth = 0;
+          let trackOffset = 0;
+          let isEntering = true;
+          let resizeObserver: ResizeObserver | undefined;
+
+          const updateLoopMeasurements = () => {
+            const rootRect = cardsRoot.getBoundingClientRect();
+            const firstRect = firstSet[0].getBoundingClientRect();
+            const cloneRect = firstClone.getBoundingClientRect();
+
+            loopWidth = cloneRect.left - firstRect.left;
+            trackOffset = (rootRect.width - loopWidth) / 2 + rootRect.width * 0.06;
+            gsap.set(track, { x: trackOffset - loopWidth });
+          };
+
+          const updateCardDepth = () => {
+            if (isEntering) return;
+
+            const rootRect = cardsRoot.getBoundingClientRect();
+            const center = rootRect.left + rootRect.width / 2;
+            const focusRange = Math.max(rootRect.width * 0.52, 1);
+            const curveDepth = Math.min(1000, rootRect.width * 0.075);
+
+            cards.forEach((card, index) => {
+              const cardRect = card.getBoundingClientRect();
+              const distance = cardRect.left + cardRect.width / 2 - center;
+              const normalizedDistance = gsap.utils.clamp(
+                -1.4,
+                1.4,
+                distance / focusRange,
+              );
+              const distanceFromCenter = Math.min(
+                Math.abs(normalizedDistance),
+                1,
+              );
+              const centerFocus = 1 - distanceFromCenter;
+              const edgeFade = gsap.utils.clamp(
+                0,
+                1,
+                (Math.abs(distance) - rootRect.width * 0.34) /
+                  Math.max(rootRect.width * 0.16, 1),
+              );
+              const sequenceIndex = index % heroCards.length;
+              const float = Math.sin(
+                gsap.ticker.time * (1.1 + (sequenceIndex % 3) * 0.12) +
+                  sequenceIndex * 0.8,
+              );
+              const edgeCurve = distanceFromCenter * distanceFromCenter;
+
+              gsap.set(card, {
+                y: edgeCurve * curveDepth + float * 3,
+                scale: 0.78 + centerFocus * 0.22,
+                opacity: 1 - edgeFade * 0.78,
+                rotation: normalizedDistance * 5,
+                rotationY: normalizedDistance * -72,
+                rotationX: float * 1.2,
+                z: centerFocus * 50 - edgeCurve * 80,
+              });
+            });
+          };
+
+          updateLoopMeasurements();
+          updateCardDepth();
+          resizeObserver = new ResizeObserver(() => {
+            updateLoopMeasurements();
+            updateCardDepth();
+          });
+          resizeObserver.observe(cardsRoot);
+
+          gsap.set(cards, {
+            transformPerspective: 1200,
+            transformOrigin: "center center",
+            force3D: true,
+          });
+
+          const entrance = gsap.timeline({
+            defaults: { ease: "power3.out" },
+          });
+          entrance.fromTo(
+            cards,
+            { autoAlpha: 0, y: 36, scale: 0.88 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.9,
+              stagger: { each: 0.045, from: "center" },
+            },
+          );
+
+          const horizontalLoop = gsap.to(track, {
+            x: () => trackOffset - loopWidth * 2,
+            duration: () => Math.max(loopWidth / 78, 1),
+            ease: "none",
+            repeat: -1,
+            immediateRender: false,
+            paused: true,
+            onUpdate: updateCardDepth,
+          });
+          entrance.eventCallback("onComplete", () => {
+            isEntering = false;
+            updateCardDepth();
+            horizontalLoop.play();
+          });
+
+          gsap.ticker.add(updateCardDepth);
+
+          return () => {
+            resizeObserver?.disconnect();
+            gsap.ticker.remove(updateCardDepth);
+          };
+        }, cardsRoot);
+
+        return () => context.revert();
+      },
+    );
+    return () => {
+      motion.revert();
+    };
+  }, []);
+
   return (
     <section id="home" data-hero-section className="relative min-h-dvh w-full overflow-hidden bg-[#5b9bd5]">
       <img
@@ -62,7 +215,7 @@ export function Hero() {
               >
                 <a
                   href="/work"
-                  className="rounded-full border border-white/30 bg-white/5 px-3 py-[9px] font-inter text-[9px]! font-extrabold! uppercase tracking-[0.04em] text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4 sm:py-[11px] sm:text-[10px]! md:text-[11px]!"
+                  className="flex min-h-[30px] items-center justify-center rounded-full border border-white/30 bg-white/5 px-3 py-[8px] font-inter text-[9px]! font-extrabold! uppercase tracking-[0.04em] text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:min-h-[34px] sm:px-4 sm:py-[9px] sm:text-[10px]! md:min-h-[38px] md:py-[10px] md:text-[11px]!"
                 >
                   view our work
                 </a>
@@ -89,16 +242,37 @@ export function Hero() {
                   </div>
                 </a>
               </div>
-            </div>
-          </div>
 
-          {/* Product Previews */}
-          <div data-anim="hero-object" data-hero-products className="w-full max-w-[920px]">
-            <img
-              src={images.object}
-              alt="DotCode digital product previews"
-              className="w-full drop-shadow-[0_25px_50px_rgba(8,18,40,0.18)]"
-            />
+              <div
+                data-hero-cards
+                className="hero-card-window"
+                aria-label="Featured product visuals"
+                ref={heroCardsRef}
+              >
+                <div className="hero-card-track">
+                  {[
+                    ...heroCards,
+                    ...heroCards,
+                    ...heroCards,
+                    ...heroCards,
+                  ].map((card, index) => {
+                    const cardIndex = index % heroCards.length;
+                    return (
+                      <img
+                        key={`${card.src}-${index}`}
+                        src={card.src}
+                        alt={card.alt}
+                        className="hero-card"
+                        data-hero-card-position={cardIndex}
+                        style={
+                          { "--hero-card-index": cardIndex } as CSSProperties
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Rating */}

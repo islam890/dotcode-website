@@ -1,19 +1,16 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
-import { ArrowDown, ArrowUpRight, LayoutGrid, List, RotateCw } from "lucide-react";
+import { ArrowDown, ArrowUpRight, LayoutGrid, List } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
-import { getProjects } from "@/api/projects";
-import { conceptProjects, type Project } from "@/data/projects";
+import { allProjects, type Project } from "@/data/projects";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
-
-type LoadState = "loading" | "ready" | "error";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function projectRoute(slug: string) {
-  return `/work/${encodeURIComponent(slug)}`;
+  return `/projects/${encodeURIComponent(slug)}`;
 }
 
 function orderProjects(projects: Project[]) {
@@ -91,13 +88,11 @@ function ProjectGridCard({ project }: { project: Project }) {
 }
 
 export function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [state, setState] = useState<LoadState>("loading");
+  const projects = useMemo(() => orderProjects(allProjects), []);
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [hoveredControl, setHoveredControl] = useState<string | null>(null);
   const [hoveredProjectId, setHoveredProjectId] = useState<number | null>(null);
-  const [requestKey, setRequestKey] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const previewPositionRef = useRef<HTMLDivElement>(null);
@@ -135,35 +130,16 @@ export function ProjectsPage() {
   );
 
   useEffect(() => {
-    const controller = new AbortController();
-    setState("loading");
-
-    getProjects(controller.signal)
-      .then((publishedProjects) => {
-        setProjects(orderProjects([...publishedProjects, ...conceptProjects]));
-        setState("ready");
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
-        setProjects(orderProjects(conceptProjects));
-        setState("error");
-      });
-
-    return () => controller.abort();
-  }, [requestKey]);
-
-  useEffect(() => {
-    if (state !== "ready" && state !== "error") return;
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
-  }, [projects, state]);
+  }, [projects]);
 
   const categories = ["ALL", "DESIGN", "DEVELOPMENT"];
   const visibleProjects = useMemo(
     () => projects.filter((project) => matchesCategory(project, activeCategory)),
     [activeCategory, projects],
   );
-  const canShowProjects = state === "ready" || state === "error";
+  const canShowProjects = true;
 
   useLayoutEffect(() => {
     if (!didFilterRef.current) {
@@ -171,11 +147,10 @@ export function ProjectsPage() {
       return;
     }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (state !== "ready") return;
     const cards = listRef.current?.querySelectorAll<HTMLElement>("[data-project-item]");
     if (!cards?.length) return;
     gsap.fromTo(cards, { autoAlpha: 0.45, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.35, stagger: 0.045, ease: "power2.out", overwrite: true });
-  }, [activeCategory, state]);
+  }, [activeCategory]);
 
   useLayoutEffect(() => {
     const preview = previewRef.current;
@@ -246,13 +221,11 @@ export function ProjectsPage() {
               </div>
             )}
 
-            {state === "loading" && <div role="status" className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">Loading selected work…</div>}
 
-            {state === "error" && <div role="alert" className="border-y border-black/15 py-12 text-center"><p className="font-sora text-xl font-semibold tracking-[-0.04em]">Projects are taking a moment.</p><p className="mt-2 font-inter text-sm text-black/55">We couldn&rsquo;t load the work just now. Please try again.</p><button type="button" onClick={() => setRequestKey((key) => key + 1)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-black px-4 py-2.5 font-inter text-[10px] font-extrabold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#455CE9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"><RotateCw className="size-3.5" aria-hidden="true" /> Try again</button></div>}
 
-            {state === "ready" && projects.length === 0 && <div className="border-y border-black/15 py-14 text-center sm:py-20"><p className="font-sora text-[clamp(1.8rem,5vw,3.2rem)] font-semibold tracking-[-0.06em]">The next project is taking shape.</p><p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-black/60">We&rsquo;re preparing the work to share here. Have an idea of your own? Let&rsquo;s make it real.</p></div>}
+            {projects.length === 0 && <div className="border-y border-black/15 py-14 text-center sm:py-20"><p className="font-sora text-[clamp(1.8rem,5vw,3.2rem)] font-semibold tracking-[-0.06em]">The next project is taking shape.</p><p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-black/60">We&rsquo;re preparing the work to share here. Have an idea of your own? Let&rsquo;s make it real.</p></div>}
 
-            {state === "ready" && projects.length > 0 && visibleProjects.length === 0 && <div className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">No projects in this category yet.</div>}
+            {projects.length > 0 && visibleProjects.length === 0 && <div className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">No projects in this category yet.</div>}
 
             {canShowProjects && visibleProjects.length > 0 && (
               <div ref={listRef} className="relative">

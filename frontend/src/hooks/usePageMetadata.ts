@@ -8,8 +8,7 @@ function getCanonicalUrl() {
     const siteUrl = new URL(configuredSiteUrl);
     if (siteUrl.protocol !== "https:" && siteUrl.protocol !== "http:") return null;
     siteUrl.pathname = siteUrl.pathname.replace(/\/+$/, "");
-    let routePath = window.location.pathname.replace(/\/+$/, "") || "/";
-    routePath = routePath.replace(/^\/projects(?=\/|$)/, "/work");
+    const routePath = window.location.pathname.replace(/\/+$/, "") || "/";
     return new URL(routePath, `${siteUrl.href.replace(/\/+$/, "")}/`).href;
   } catch {
     return null;
