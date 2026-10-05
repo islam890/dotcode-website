@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ApiError } from "@/api/client";
 import { createContactMessage } from "@/api/contact";
+import { useLocale } from "@/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -329,14 +330,31 @@ const fieldClassName =
   "h-10 w-full rounded-md border border-black/[0.08] bg-white px-3 font-inter text-xs font-normal normal-case tracking-normal text-black outline-none transition-colors placeholder:text-black/35 focus:border-black/40";
 
 function CountryPhoneField() {
+  const { locale } = useLocale();
   const [country, setCountry] = useState(countries.find((item) => item.iso === "DZ") ?? countries[0]);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const filteredCountries = countries.filter((item) =>
-    `${item.name} ${item.iso} +${item.dial}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const countryNames = new Intl.DisplayNames([
+    locale === "fr" ? "fr" : locale === "ar" ? "ar" : locale === "de" ? "de" : locale === "es" ? "es" : "en",
+  ], {
+    type: "region",
+  });
+  const filteredCountries = countries
+    .map((item) => ({
+      ...item,
+      displayName: countryNames.of(item.iso) ?? item.name,
+    }))
+    .filter((item) =>
+      `${item.displayName} ${item.name} ${item.iso} +${item.dial}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+    )
+    .sort((first, second) =>
+      first.displayName.localeCompare(second.displayName, locale),
+    );
+  const selectedCountryName = countryNames.of(country.iso) ?? country.name;
 
   useEffect(() => {
     if (!open) return;
@@ -362,7 +380,7 @@ function CountryPhoneField() {
         <div ref={wrapperRef} className="relative shrink-0">
           <button
             type="button"
-            aria-label={`Choose phone country, currently ${country.name} +${country.dial}`}
+            aria-label={`Choose phone country, currently ${selectedCountryName} +${country.dial}`}
             aria-expanded={open}
             aria-haspopup="listbox"
             onClick={() => setOpen((current) => !current)}
@@ -373,7 +391,7 @@ function CountryPhoneField() {
             <ChevronDown aria-hidden="true" className={`ml-auto size-3 text-black/50 transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
           {open && (
-            <div className="absolute left-0 top-[calc(100%+7px)] z-50 w-[min(310px,calc(100vw-2rem))] overflow-hidden rounded-lg border border-black/10 bg-white text-black shadow-[0_18px_55px_rgba(0,0,0,.14)]">
+            <div data-rtl-anchor="start" className="absolute left-0 top-[calc(100%+7px)] z-50 w-[min(310px,calc(100vw-2rem))] overflow-hidden rounded-lg border border-black/10 bg-white text-black shadow-[0_18px_55px_rgba(0,0,0,.14)]">
               <div className="border-b border-black/[0.07] p-2.5">
                 <div className="flex h-9 items-center gap-2 rounded-md border border-black/10 px-2.5 focus-within:border-black/40">
                   <Search aria-hidden="true" className="size-3.5 shrink-0 text-black/40" />
@@ -408,7 +426,7 @@ function CountryPhoneField() {
                     className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left font-inter text-xs font-normal normal-case tracking-normal transition-colors hover:bg-black/[0.04] focus-visible:bg-black/[0.04] focus-visible:outline-none"
                   >
                     <CountryFlag iso={item.iso} />
-                    <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                    <span className="min-w-0 flex-1 truncate">{item.displayName}</span>
                     <span className="text-black/45">+{item.dial}</span>
                     {country.iso === item.iso && <Check aria-hidden="true" className="size-3.5 text-[#455CE9]" />}
                   </button>
@@ -487,7 +505,7 @@ function ChoiceField({
           <ChevronDown aria-hidden="true" className={`ml-2 size-3.5 shrink-0 text-black/45 transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
         {open && (
-          <div role="listbox" aria-label={label} className="absolute left-0 top-[calc(100%+6px)] z-40 max-h-56 w-full overflow-y-auto rounded-lg border border-black/10 bg-white p-1.5 text-black shadow-[0_18px_55px_rgba(0,0,0,.14)]">
+          <div data-rtl-anchor="start" role="listbox" aria-label={label} className="absolute left-0 top-[calc(100%+6px)] z-40 max-h-56 w-full overflow-y-auto rounded-lg border border-black/10 bg-white p-1.5 text-black shadow-[0_18px_55px_rgba(0,0,0,.14)]">
             {options.map((option) => (
               <button
                 key={option}

@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { images, navLinks } from "@/data/site";
 import { flaticonIcons } from "@/data/flaticonIcons";
+import { useLocale } from "@/i18n";
 
 const menuLinks = [{ label: "Home", href: "/" }, ...navLinks].map((link) => ({
   ...link,
@@ -48,20 +49,32 @@ const languages = [
   },
 ];
 
-function getDateTime() {
+const supportedLanguages = languages.filter((language) =>
+  language.code === "EN" || language.code === "FR" || language.code === "AR" || language.code === "DE" || language.code === "ES",
+);
+
+function getLanguageName(language: (typeof languages)[number]) {
+  if (language.code === "FR") return "Fran\u00e7ais";
+  if (language.code === "AR") return "\u0627\u0644\u0639\u0631\u0628\u064a\u0629";
+  if (language.code === "ES") return "Espa\u00f1ol";
+  return language.name;
+}
+
+function getDateTime(locale: "en" | "fr" | "ar" | "de" | "es") {
   const now = new Date();
+  const intlLocale = locale === "fr" ? "fr-FR" : locale === "ar" ? "ar-DZ" : locale === "de" ? "de-DE" : locale === "es" ? "es-ES" : "en-GB";
 
   return {
-    day: now.toLocaleDateString("en-GB", {
+    day: now.toLocaleDateString(intlLocale, {
       weekday: "long",
     }),
-    time: now.toLocaleTimeString("en-GB", {
+    time: now.toLocaleTimeString(intlLocale, {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
     }),
-    date: now.toLocaleDateString("en-GB", {
+    date: now.toLocaleDateString(intlLocale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -70,12 +83,15 @@ function getDateTime() {
 }
 
 export default function Header() {
+  const { locale, setLocale } = useLocale();
   const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
-  const [dateTime, setDateTime] = useState(getDateTime);
+  const [dateTime, setDateTime] = useState(() => getDateTime(locale));
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+  const selectedLanguage = supportedLanguages.find(
+    (language) => language.code.toLowerCase() === locale,
+  ) ?? supportedLanguages[0];
 
   const navbarRef = useRef<HTMLElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -97,14 +113,15 @@ export default function Header() {
   const magnetYRef = useRef(0);
 
   useEffect(() => {
+    setDateTime(getDateTime(locale));
     const interval = window.setInterval(() => {
-      setDateTime(getDateTime());
+      setDateTime(getDateTime(locale));
     }, 1000);
 
     return () => {
       window.clearInterval(interval);
     };
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
@@ -768,7 +785,17 @@ export default function Header() {
   const handleLanguageSelect = (
     language: (typeof languages)[number],
   ) => {
-    setSelectedLanguage(language);
+    setLocale(
+      language.code === "FR"
+        ? "fr"
+        : language.code === "AR"
+          ? "ar"
+          : language.code === "DE"
+            ? "de"
+            : language.code === "ES"
+              ? "es"
+              : "en",
+    );
     setLanguageOpen(false);
   };
 
@@ -861,8 +888,8 @@ export default function Header() {
             </button>
 
             {languageOpen && (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-[120] min-w-[180px] overflow-hidden rounded-2xl border border-black/10 bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
-                {languages.map((language) => (
+              <div data-rtl-anchor="end" className="absolute right-0 top-[calc(100%+8px)] z-[120] min-w-[180px] overflow-hidden rounded-2xl border border-black/10 bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+                {supportedLanguages.map((language) => (
                   <button
                     key={language.code}
                     type="button"
@@ -883,7 +910,7 @@ export default function Header() {
                     />
 
                     <span className="flex-1 font-inter text-[13px] font-medium">
-                      {language.name}
+                      {getLanguageName(language)}
                     </span>
 
                     <span className="font-inter text-[11px] font-bold text-[#6b7280]">
@@ -967,6 +994,7 @@ export default function Header() {
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
               aria-controls="site-menu-panel"
+              data-rtl-anchor="end-button"
               className={`fixed right-4 top-4 z-[210] flex h-[68px] w-[68px] items-center justify-center rounded-full border border-white/15 bg-[#0A0A0A] shadow-[0_12px_32px_rgba(0,0,0,0.14)] md:right-6 md:top-6 md:h-[76px] md:w-[76px] ${hasScrolled ? "" : "hidden"}`}
             >
               <span className="relative block h-4 w-6">
@@ -985,6 +1013,7 @@ export default function Header() {
             <aside
               ref={menuPanelRef}
               id="site-menu-panel"
+              data-rtl-anchor="end-panel"
               className={`fixed right-0 top-0 z-[205] h-dvh w-[min(92vw,560px)] overflow-hidden bg-[#0A0A0A] text-white sm:w-[min(560px,58vw)] md:w-[min(500px,62vw)] lg:w-[min(740px,40vw)] ${
                 menuOpen
                   ? "pointer-events-auto"
