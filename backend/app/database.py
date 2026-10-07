@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     smtp_username: str | None = None
     smtp_password: str | None = None
     smtp_use_tls: bool = True
+
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
 
@@ -36,10 +37,13 @@ class Settings(BaseSettings):
             for origin in self.cors_origins.split(",")
             if origin.strip()
         ]
+
         if not origins:
             raise ValueError("CORS_ORIGINS must contain at least one origin.")
+
         if any("*" in origin for origin in origins):
             raise ValueError("CORS_ORIGINS must not contain wildcard origins.")
+
         return origins
 
 
