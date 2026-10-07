@@ -1,5 +1,8 @@
 import { SiInstagram } from "react-icons/si";
 import { FaFacebookF, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
+import { useState } from "react";
+import { ApiError } from "@/api/client";
+import { createNewsletterSubscription } from "@/api/newsletter";
 import { images, socialLinks } from "@/data/site";
 import { flaticonAttributions, flaticonIcons } from "@/data/flaticonIcons";
 
@@ -11,6 +14,33 @@ const socialIcons = {
 } as const;
 
 export function Footer() {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterState, setNewsletterState] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+
+  async function handleNewsletterSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (newsletterState === "submitting") return;
+
+    setNewsletterState("submitting");
+    setNewsletterMessage("");
+    try {
+      const response = await createNewsletterSubscription(newsletterEmail);
+      setNewsletterState("success");
+      setNewsletterMessage(response.message);
+      setNewsletterEmail("");
+    } catch (error) {
+      setNewsletterState("error");
+      setNewsletterMessage(
+        error instanceof ApiError && error.status === 422
+          ? "Please enter a valid email address."
+          : "We couldn't subscribe you right now. Please try again.",
+      );
+    }
+  }
+
   return (
     <footer
       id="site-footer"
@@ -139,10 +169,10 @@ export function Footer() {
 
             <form
               className="order-first flex w-full max-w-[498px] flex-col gap-2 md:order-last"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={handleNewsletterSubmit}
             >
               <label
-                htmlFor="email"
+                htmlFor="newsletter-email"
                 className="font-inter text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80 sm:text-[12px]"
               >
                 Email Address
@@ -150,27 +180,37 @@ export function Footer() {
 
               <div className="flex h-[48px] items-center gap-2 rounded-full border border-white/20 bg-white/3 p-1.5 transition-colors duration-200 focus-within:border-white/40 sm:h-[52px] sm:p-1.5 lg:h-[54px]">
                 <input
-                  id="email"
+                  id="newsletter-email"
                   type="email"
                   aria-label="Email address"
                   placeholder="your@email.com"
-                  disabled
+                  value={newsletterEmail}
+                  onChange={(event) => {
+                    setNewsletterEmail(event.target.value);
+                    if (newsletterState !== "idle") {
+                      setNewsletterState("idle");
+                      setNewsletterMessage("");
+                    }
+                  }}
+                  disabled={newsletterState === "submitting"}
                   className="min-w-0 flex-1 bg-transparent px-3 font-sora text-[12px] text-white placeholder:text-white/30 focus:outline-none sm:px-4 sm:text-[13px]"
                 />
 
                 <button
                   type="submit"
-                  disabled
+                  disabled={newsletterState === "submitting" || !newsletterEmail.trim()}
                   className="flex h-full shrink-0 items-center justify-center rounded-full bg-[#b7ff3c] px-4 font-inter text-[9px]! font-extrabold! uppercase tracking-[0.06em] text-black disabled:cursor-not-allowed disabled:opacity-60 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#c4ff62] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c] sm:px-5 sm:text-[10px]!"
                 >
                   Send
                 </button>
               </div>
 
-              <p data-footer-newsletter-note className="font-sora text-[12px] leading-[1.3] sm:text-[13px]">
-                <span className="text-[#8d8d8d]">
-                  Newsletter sign-ups are currently unavailable.{" "}
-                </span>
+              <p data-footer-newsletter-note aria-live="polite" className="font-sora text-[12px] leading-[1.3] sm:text-[13px]">
+                {newsletterMessage && (
+                  <span className={newsletterState === "error" ? "text-red-300" : "text-[#b7ff3c]"}>
+                    {newsletterMessage}{" "}
+                  </span>
+                )}
                 <span className="font-semibold uppercase underline">privacy policy</span>
               </p>
             </form>

@@ -10,6 +10,7 @@ from app.database import Settings
 from app.models import ContactMessage
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def _budget_label(contact_message: ContactMessage) -> str:
@@ -46,8 +47,29 @@ def _notification_lines(contact_message: ContactMessage) -> list[str]:
 
 def notify_contact_message(contact_message: ContactMessage, settings: Settings) -> None:
     """Attempt all configured notifications without affecting persisted inquiries."""
-    _send_email_notification(contact_message, settings)
-    _send_telegram_notification(contact_message, settings)
+    for notification_name, sender in (
+        ("email", _send_email_notification),
+        ("Telegram", _send_telegram_notification),
+    ):
+        try:
+            sender(contact_message, settings)
+        except Exception:
+            logger.exception(
+                "Contact notification %s failed unexpectedly for contact message %s.",
+                notification_name,
+                contact_message.id,
+            )
+
+
+def notify_newsletter_subscription(email: str, settings: Settings) -> None:
+    """Attempt a newsletter notification without affecting the saved subscription."""
+    try:
+        _send_newsletter_telegram_notification(email, settings)
+    except Exception:
+        logger.exception(
+            "Newsletter Telegram notification failed unexpectedly for %s.",
+            email,
+        )
 
 
 def _send_email_notification(
@@ -60,7 +82,16 @@ def _send_email_notification(
         settings.contact_email,
     )
     if not all(configuration):
-        logger.info("Email notification skipped: SMTP/contact email is not configured.")
+        logger.warning(
+            "Email notification skipped: SMTP/contact email is not configured."
+        )
+        return
+    if not settings.smtp_username or not settings.smtp_password:
+        logger.error(
+            "Email notification skipped for contact message %s: "
+            "SMTP authentication credentials are not configured.",
+            contact_message.id,
+        )
         return
 
     email = EmailMessage()
@@ -113,11 +144,36 @@ def _send_email_notification(
         with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as smtp:
             if settings.smtp_use_tls:
                 smtp.starttls()
-            if settings.smtp_username and settings.smtp_password:
-                smtp.login(settings.smtp_username, settings.smtp_password)
-            smtp.send_message(email)
-    except (OSError, smtplib.SMTPException):
-        logger.exception("Email notification failed for contact message %s.", contact_message.id)
+            smtp.login(settings.smtp_username, settings.smtp_password)
+            refused_recipients = smtp.send_message(email)
+        logger.info(
+            "Email notification: SMTP accepted contact message %s; "
+            "server=%s port=%s tls=%s refused_recipients=%d.",
+            contact_message.id,
+            settings.smtp_host,
+            settings.smtp_port,
+            settings.smtp_use_tls,
+            len(refused_recipients),
+        )
+    except smtplib.SMTPAuthenticationError as exc:
+        logger.error(
+            "Email notification failed for contact message %s: "
+            "SMTP authentication error code=%s.",
+            contact_message.id,
+            exc.smtp_code,
+        )
+    except smtplib.SMTPException as exc:
+        logger.error(
+            "Email notification failed for contact message %s: %s.",
+            contact_message.id,
+            type(exc).__name__,
+        )
+    except OSError as exc:
+        logger.error(
+            "Email notification failed for contact message %s: %s.",
+            contact_message.id,
+            type(exc).__name__,
+        )
 
 
 def _send_telegram_notification(
@@ -175,13 +231,87 @@ def _send_telegram_notification(
         method="POST",
     )
 
+    _send_telegram_request(request, f"contact message {contact_message.id}")
+
+
+def _send_newsletter_telegram_notification(email: str, settings: Settings) -> None:
+    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+        logger.info("Newsletter Telegram notification skipped: bot credentials are not configured.")
+        return
+
+    message = "\n".join(
+        [
+            "📬 <b>DOTCODE</b>",
+            "<b>NEW NEWSLETTER SUBSCRIPTION</b>",
+            "",
+            f"<b>Email:</b> {html.escape(email)}",
+            "",
+            "🌐 <i>Subscribed via DotCode Website</i>",
+        ]
+    )
+    payload = json.dumps(
+        {
+            "chat_id": settings.telegram_chat_id,
+            "text": message,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True,
+        }
+    ).encode("utf-8")
+    request = Request(
+        f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    _send_telegram_request(request, f"newsletter subscription {email}")
+
+
+def _send_telegram_request(request: Request, notification_name: str) -> bool:
     try:
         with urlopen(request, timeout=10) as response:
+            status_code = response.status
             response_body = json.loads(response.read().decode("utf-8"))
-        if not response_body.get("ok"):
-            raise RuntimeError("Telegram API returned an unsuccessful response.")
-    except (HTTPError, URLError, OSError, ValueError, RuntimeError):
-        logger.exception(
-            "Telegram notification failed for contact message %s.",
-            contact_message.id,
+    except HTTPError as exc:
+        try:
+            response_body = json.loads(exc.read().decode("utf-8"))
+        except (UnicodeDecodeError, ValueError):
+            response_body = {}
+        logger.error(
+            "Telegram notification failed: HTTP %s, ok=%s, error_code=%s, description=%s.",
+            exc.code,
+            response_body.get("ok"),
+            response_body.get("error_code", "unknown"),
+            response_body.get("description", "unknown"),
         )
+        return False
+    except (URLError, OSError) as exc:
+        logger.error(
+            "Telegram notification failed for %s: %s.",
+            notification_name,
+            type(exc).__name__,
+        )
+        return False
+    except ValueError:
+        logger.error(
+            "Telegram notification failed for %s: invalid JSON response.",
+            notification_name,
+        )
+        return False
+
+    if response_body.get("ok") is True:
+        logger.info(
+            "Telegram notification: HTTP %s, ok=true, notification=%s.",
+            status_code,
+            notification_name,
+        )
+        return True
+
+    logger.error(
+        "Telegram notification failed: HTTP %s, ok=%s, error_code=%s, description=%s.",
+        status_code,
+        response_body.get("ok"),
+        response_body.get("error_code", "unknown"),
+        response_body.get("description", "unknown"),
+    )
+    return False
