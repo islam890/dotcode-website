@@ -1,14 +1,13 @@
 export type Service = {
-  id: number;
-  number: string;
-  title: string;
-  slug: string;
-  short_description: string;
-  description: string;
-  featured: boolean;
-  published: boolean;
-  order: number;
-};
+  id: number
+  number: string
+  title: string
+  slug: string
+  short_description: string
+  description: string
+  published: boolean
+  order: number
+}
 
 const serviceDescriptions = {
   webDevelopment:
@@ -23,7 +22,7 @@ const serviceDescriptions = {
     "Clear, purposeful interfaces that make digital products easier to understand and use.",
   customSoftware:
     "Tailored digital systems built around your workflows, operations, and unique requirements.",
-} as const;
+} as const
 
 export const services: Service[] = [
   {
@@ -33,7 +32,6 @@ export const services: Service[] = [
     slug: "web-development",
     short_description: serviceDescriptions.webDevelopment,
     description: serviceDescriptions.webDevelopment,
-    featured: true,
     published: true,
     order: 1,
   },
@@ -44,7 +42,6 @@ export const services: Service[] = [
     slug: "mobile-development",
     short_description: serviceDescriptions.mobileDevelopment,
     description: serviceDescriptions.mobileDevelopment,
-    featured: true,
     published: true,
     order: 2,
   },
@@ -55,7 +52,6 @@ export const services: Service[] = [
     slug: "saas-development",
     short_description: serviceDescriptions.saasDevelopment,
     description: serviceDescriptions.saasDevelopment,
-    featured: true,
     published: true,
     order: 3,
   },
@@ -66,7 +62,6 @@ export const services: Service[] = [
     slug: "ai-solutions",
     short_description: serviceDescriptions.aiSolutions,
     description: serviceDescriptions.aiSolutions,
-    featured: false,
     published: true,
     order: 4,
   },
@@ -77,7 +72,6 @@ export const services: Service[] = [
     slug: "ui-ux-design",
     short_description: serviceDescriptions.uiUxDesign,
     description: serviceDescriptions.uiUxDesign,
-    featured: false,
     published: true,
     order: 5,
   },
@@ -88,8 +82,7 @@ export const services: Service[] = [
     slug: "custom-software",
     short_description: serviceDescriptions.customSoftware,
     description: serviceDescriptions.customSoftware,
-    featured: false,
     published: true,
     order: 6,
   },
-];
+]

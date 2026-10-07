@@ -11,6 +11,16 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     api_docs_enabled: bool = True
 
+    contact_email: str | None = None
+    email_from: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_use_tls: bool = True
+    telegram_bot_token: str | None = None
+    telegram_chat_id: str | None = None
+
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 60

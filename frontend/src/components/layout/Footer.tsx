@@ -107,22 +107,24 @@ export function Footer() {
               </p>
 
               <div className="flex gap-3 sm:gap-4">
-                {socialLinks.map(({ name }) => {
+                {socialLinks.map(({ name, href }) => {
                   const SocialIcon = socialIcons[name];
 
                   return (
-                    <span
+                    <a
                       key={name}
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
                       data-footer-social-link
                       aria-label={name}
-                      role="img"
-                      className="flex size-[48px] items-center justify-center rounded-full border border-white/20 bg-white/3 sm:size-[52px] lg:size-[56px]"
+                      className="flex size-[48px] items-center justify-center rounded-full border border-white/20 bg-white/3 text-white/80 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#b7ff3c] hover:bg-[#b7ff3c] hover:text-black hover:shadow-[0_8px_24px_rgba(183,255,60,0.25)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b7ff3c] sm:size-[52px] lg:size-[56px]"
                     >
                       <SocialIcon
                         className="size-[18px] sm:size-[20px] lg:size-[22px]"
                         aria-hidden="true"
                       />
-                    </span>
+                    </a>
                   );
                 })}
               </div>

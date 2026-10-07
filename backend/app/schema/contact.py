@@ -16,6 +16,7 @@ class ContactMessageResponse(BaseModel):
     project_type: str | None
     service: str | None
     budget: str | None
+    budget_currency: str | None
     message: str
     status: Literal["NEW", "READ", "REPLIED", "ARCHIVED"]
     created_at: datetime
@@ -31,6 +32,7 @@ class ContactMessageCreate(BaseModel):
     project_type: str | None = Field(default=None, max_length=100)
     service: str | None = Field(default=None, max_length=100)
     budget: str | None = Field(default=None, max_length=100)
+    budget_currency: str | None = Field(default=None, max_length=3)
     message: str = Field(min_length=10, max_length=5000)
 
 

@@ -16,6 +16,7 @@ class ContactMessage(Base):
     project_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     service: Mapped[str | None] = mapped_column(String(100), nullable=True)
     budget: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    budget_currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(Enum("NEW", "READ", "REPLIED", "ARCHIVED", name="contact_message_status"), default="NEW", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

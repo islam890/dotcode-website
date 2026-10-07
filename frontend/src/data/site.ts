@@ -55,8 +55,17 @@ export const brandLogos = [
 ] as const;
 
 export const socialLinks = [
-  { name: "Facebook" },
-  { name: "Instagram" },
-  { name: "LinkedIn" },
-  { name: "WhatsApp" },
+  {
+    name: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61594265138267&locale=fr_FR",
+  },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/dotcode_agency?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==",
+  },
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/company/dotcodeagency",
+  },
+  { name: "WhatsApp", href: "https://wa.me/213656264776" },
 ] as const;

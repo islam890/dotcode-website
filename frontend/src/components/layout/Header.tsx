@@ -15,10 +15,19 @@ const menuLinks = [{ label: "Home", href: "/" }, ...navLinks].map((link) => ({
 }));
 
 const menuSocials = [
-  { label: "Facebook" },
-  { label: "Instagram" },
-  { label: "LinkedIn" },
-  { label: "WhatsApp" },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61594265138267&locale=fr_FR",
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/dotcode_agency?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/dotcodeagency",
+  },
+  { label: "WhatsApp", href: "https://wa.me/213656264776" },
 ] as const;
 
 const languages = [
@@ -1078,8 +1087,11 @@ export default function Header() {
 
                   <div className="flex flex-wrap gap-x-6 gap-y-3">
                     {menuSocials.map((social, index) => (
-                      <span
+                      <a
                         key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noreferrer"
                         ref={(element) => {
                           if (element) {
                             menuSocialsRef.current[index] =
@@ -1087,11 +1099,10 @@ export default function Header() {
                           }
                         }}
                         aria-label={social.label}
-                        role="img"
                         className="text-sm text-white/65"
                       >
                         {social.label}
-                      </span>
+                      </a>
                     ))}
                   </div>
 

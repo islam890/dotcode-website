@@ -375,7 +375,7 @@ function CountryPhoneField() {
 
   return (
     <div className="block font-inter text-[9px] font-semibold uppercase tracking-[0.08em]">
-      Phone number <span className="text-black/40">(optional)</span>
+      Phone number
       <div className="mt-1.5 flex h-10 w-full rounded-md border border-black/[0.08] bg-white transition-colors focus-within:border-black/40">
         <div ref={wrapperRef} className="relative shrink-0">
           <button
@@ -450,6 +450,86 @@ function CountryPhoneField() {
         />
       </div>
     </div>
+  );
+}
+
+const currencies = [
+  { code: "EUR", name: "Euro", flag: "EU" },
+  { code: "USD", name: "US Dollar", flag: "US" },
+  { code: "DZD", name: "Algerian Dinar", flag: "DZ" },
+] as const;
+
+function BudgetField() {
+  const [currency, setCurrency] = useState<(typeof currencies)[number]>(currencies[2]);
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <label className="block font-inter text-[9px] font-semibold uppercase tracking-[0.08em]">
+      Budget <span className="text-black/40">(optional)</span>
+      <div className="mt-1.5 flex h-10 w-full rounded-md border border-black/[0.08] bg-white transition-colors focus-within:border-black/40">
+        <div ref={wrapperRef} className="relative shrink-0">
+          <button
+            type="button"
+            aria-label={`Choose budget currency, currently ${currency.code}`}
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            onClick={() => setOpen((current) => !current)}
+            className="flex h-full min-w-[88px] items-center gap-1.5 rounded-l-md border-r border-black/[0.08] px-2.5 font-inter text-xs font-medium normal-case tracking-normal text-black outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#455CE9]"
+          >
+            <CountryFlag iso={currency.flag} />
+            <span>{currency.code}</span>
+            <ChevronDown aria-hidden="true" className={`ml-auto size-3 text-black/50 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+          {open && (
+            <div role="listbox" aria-label="Budget currencies" className="absolute left-0 top-[calc(100%+7px)] z-50 w-48 overflow-hidden rounded-lg border border-black/10 bg-white p-1.5 text-black shadow-[0_18px_55px_rgba(0,0,0,.14)]">
+              {currencies.map((item) => (
+                <button
+                  key={item.code}
+                  type="button"
+                  role="option"
+                  aria-selected={currency.code === item.code}
+                  onClick={() => {
+                    setCurrency(item);
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left font-inter text-xs font-normal normal-case tracking-normal transition-colors hover:bg-black/[0.04] focus-visible:bg-black/[0.04] focus-visible:outline-none"
+                >
+                  <CountryFlag iso={item.flag} />
+                  <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                  <span className="text-black/45">{item.code}</span>
+                  {currency.code === item.code && <Check aria-hidden="true" className="size-3.5 text-[#455CE9]" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <input type="hidden" name="budgetCurrency" value={currency.code} />
+        <input
+          name="budget"
+          inputMode="decimal"
+          placeholder="Budget"
+          aria-label="Budget"
+          className="h-full min-w-0 flex-1 rounded-r-md bg-transparent px-2.5 font-inter text-xs font-normal normal-case tracking-normal text-black outline-none placeholder:text-black/35 sm:px-3"
+        />
+      </div>
+    </label>
   );
 }
 
@@ -575,7 +655,10 @@ export function FAQContact() {
     const phoneInput = String(formData.get("phone") ?? "").trim();
     const countryDialCode = String(formData.get("countryDialCode") ?? "").trim();
     const phone = phoneInput ? `${countryDialCode} ${phoneInput}`.trim() : null;
+    const company = String(formData.get("company") ?? "").trim() || null;
     const service = String(formData.get("service") ?? "").trim() || null;
+    const budget = String(formData.get("budget") ?? "").trim() || null;
+    const budgetCurrency = String(formData.get("budgetCurrency") ?? "").trim() || null;
     const message = String(formData.get("message") ?? "").trim();
     const nameLength = [...name].length;
     const messageLength = [...message].length;
@@ -621,8 +704,11 @@ export function FAQContact() {
         name,
         email,
         phone,
+        company,
         project_type: projectType,
         service,
+        budget,
+        budget_currency: budgetCurrency,
         message,
       });
       setSubmissionState("success");
@@ -760,6 +846,17 @@ export function FAQContact() {
                   placeholder="Choose a service"
                   options={["Product design", "Web development", "Mobile development", "AI solutions", "Custom software", "Digital strategy"]}
                 />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block font-inter text-[9px] font-semibold uppercase tracking-[0.08em]">
+                  Company <span className="text-black/40">(optional)</span>
+                  <input
+                    name="company"
+                    placeholder="Company name"
+                    className={`${fieldClassName} mt-1.5`}
+                  />
+                </label>
+                <BudgetField />
               </div>
               <p data-selection-error role="alert" className="hidden -mt-1 font-inter text-[10px] font-medium normal-case tracking-normal text-red-600">Choose a project type to continue.</p>
               <label className="block font-inter text-[9px] font-semibold uppercase tracking-[0.08em]">

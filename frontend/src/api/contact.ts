@@ -4,15 +4,16 @@ export type ContactMessageCreate = {
   name: string;
   email: string;
   phone: string | null;
+  company: string | null;
   project_type: string | null;
   service: string | null;
+  budget: string | null;
+  budget_currency: string | null;
   message: string;
 };
 
 export type ContactMessageResponse = ContactMessageCreate & {
   id: number;
-  company: string | null;
-  budget: string | null;
   status: "NEW" | "READ" | "REPLIED" | "ARCHIVED";
   created_at: string;
   updated_at: string;

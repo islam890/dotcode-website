@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_db, settings
 from app.models import ContactMessage, Admin
 from app.schema.contact import (
     ContactMessageCreate,
@@ -10,6 +10,7 @@ from app.schema.contact import (
 )
 from app.api.v1.dependencies import get_current_admin
 from app.core.limiter import limiter
+from app.services.notifications import notify_contact_message
 
 router = APIRouter(
     prefix="/contact",
@@ -65,6 +66,8 @@ def create_contact_message(
     db.add(contact_message)
     db.commit()
     db.refresh(contact_message)
+
+    notify_contact_message(contact_message, settings)
 
     return contact_message
 
