@@ -189,7 +189,7 @@ export function About() {
 
               <div className="relative z-10 mx-auto -mt-30 flex w-[92%] flex-col gap-1 rounded-[22px] border border-black/5 bg-white px-4 py-5 shadow-[0_18px_38px_rgba(15,23,42,0.08)] sm:-mt-14 sm:p-5 md:absolute md:bottom-[7%] md:left-[4%] md:mt-0 md:w-[92%]">
                 <p
-                  data-counter="20"
+                  data-counter="5"
                   data-suffix=" +"
                   className="font-sora text-[clamp(1.7rem,6vw,2.1rem)] font-bold tracking-[-0.06em] text-black sm:text-[clamp(2rem,5vw,2.5rem)] md:text-[48px]"
                 >
@@ -265,7 +265,7 @@ export function About() {
                   </p>
 
                   <p
-                    data-counter="230"
+                    data-counter="1"
                     data-suffix="k +"
                     className="font-sora text-[clamp(2.2rem,7vw,3.2rem)] font-bold md:text-[48px]"
                   >
@@ -285,7 +285,7 @@ export function About() {
                 </p>
 
                 <p
-                  data-counter="1200"
+                  data-counter="950"
                   data-suffix=" +"
                   className="whitespace-nowrap font-sora text-[clamp(1.8rem,6vw,2.5rem)] font-bold tracking-[-0.06em] md:text-[44px]"
                 >
