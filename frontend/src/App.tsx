@@ -274,7 +274,6 @@ export default function App() {
         <>
           <main className="relative z-10 w-full bg-white">
             <Hero />
-            <Brands />
             <About />
             <Services />
             <Announcement />
