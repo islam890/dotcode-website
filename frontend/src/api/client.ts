@@ -1,4 +1,4 @@
-const apiBase = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+const apiBase = "https://dotcode-api.onrender.com/api/v1";
 
 export class ApiError extends Error {
   constructor(readonly status: number) {
