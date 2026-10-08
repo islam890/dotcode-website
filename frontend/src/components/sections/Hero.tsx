@@ -155,7 +155,7 @@ export function Hero() {
               <p
                 data-anim="hero-copy"
                 data-hero-copy
-                className="w-full max-w-[560px] font-inter text-[0.9rem] font-normal leading-[1.5] tracking-[-1px] text-white/90 sm:text-[0.95rem] md:text-[1rem] lg:text-[1.05rem]"
+                className="w-full max-w-[560px] font-inter text-[0.9rem] font-normal leading-[1.5] tracking-[0.61px] text-white/90 sm:text-[0.95rem] md:text-[1rem] lg:text-[1.05rem]"
               >
                 We help businesses transform ideas into meaningful digital
                 experiences through modern software development, intelligent AI
@@ -230,7 +230,7 @@ export function Hero() {
             className="-mt-5 flex flex-col items-center gap-1.5 sm:-mt-6 md:-mt-8"
           >
             <p className="text-center font-inter text-[0.9rem] font-normal tracking-[-0.02em] text-white/90 sm:text-[1rem] md:text-[1.1rem]">
-              Rated 4.7/5 by 1,223+ clients
+              Rated 4.7/5 by 20+ clients
             </p>
 
             <div className="flex items-center gap-1.5">
