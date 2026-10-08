@@ -122,12 +122,12 @@ export function Services() {
               Whether you&rsquo;re optimizing today or building for tomorrow we
               help you move faster with confidence.
             </p>
-            <button
-              type="button"
+            <a
+              href="#contact"
               className="flex items-center justify-center rounded-full bg-black px-3 py-[9px] font-inter text-[9px]! font-extrabold! uppercase tracking-[0.08em] text-[#b7ff3c] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0f172a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black sm:px-4 sm:py-[11px] sm:text-[10px]! md:text-[11px]!"
             >
               get started
-            </button>
+            </a>
           </div>
 
           <div className="flex w-full flex-col gap-3">
