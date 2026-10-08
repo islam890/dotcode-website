@@ -131,22 +131,7 @@ function sitemapPlugin(siteUrl: string): Plugin {
     transformIndexHtml: {
       order: "post",
       handler(html) {
-        const canonical = `${siteUrl}/`
-        return {
-          html,
-          tags: [
-            {
-              tag: "link",
-              attrs: { rel: "canonical", href: canonical },
-              injectTo: "head",
-            },
-            {
-              tag: "meta",
-              attrs: { property: "og:url", content: canonical },
-              injectTo: "head",
-            },
-          ],
-        }
+        return html
       },
     },
     async generateBundle() {
