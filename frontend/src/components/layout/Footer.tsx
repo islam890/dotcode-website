@@ -54,7 +54,7 @@ export function Footer() {
         height="1200"
         loading="lazy"
         decoding="async"
-        className="pointer-events-none absolute right-0 top-1/2 hidden h-[743px] w-[746px] max-w-none -translate-y-1/2 object-cover opacity-35 lg:block"
+        className="pointer-events-none absolute right-[-5rem] top-[52%] h-[900px] w-[900px] max-w-none -translate-y-1/2 object-contain opacity-25 sm:right-[-6rem] sm:opacity-30 md:right-[-7rem] md:opacity-35 lg:right-0 lg:top-1/2 lg:h-[743px] lg:w-[746px] lg:object-cover lg:opacity-35"
         src={images.rectangle45}
       />
 
