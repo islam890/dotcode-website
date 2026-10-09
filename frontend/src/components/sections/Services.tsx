@@ -44,6 +44,7 @@ function ServiceCard({
 export function Services() {
   const servicesHeadingRef = useRef<HTMLHeadingElement>(null);
   const serviceCardsPageRef = useRef<HTMLDivElement>(null);
+  const [activeServiceDot, setActiveServiceDot] = useState(0);
   const homeServices = services
     .filter((service) => service.published)
     .sort((a, b) => a.order - b.order || a.id - b.id)
@@ -93,6 +94,21 @@ export function Services() {
     );
 
     return () => gsap.killTweensOf(cards);
+  }, []);
+
+  useEffect(() => {
+    const container = serviceCardsPageRef.current;
+    if (!container) return;
+
+    const updateActiveDot = () => {
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const scrollProgress = maxScroll > 0 ? Math.abs(container.scrollLeft) / maxScroll : 0;
+      setActiveServiceDot(Math.round(scrollProgress * 2));
+    };
+
+    updateActiveDot();
+    container.addEventListener("scroll", updateActiveDot, { passive: true });
+    return () => container.removeEventListener("scroll", updateActiveDot);
   }, []);
 
   return (
@@ -150,6 +166,17 @@ export function Services() {
                   />
                 </div>
               ))}
+            </div>
+            <div className="relative mx-auto h-2 w-8 md:hidden" aria-hidden="true">
+              <span className="absolute left-0 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-black/25" />
+              <span className="absolute left-1/2 top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/25" />
+              <span className="absolute right-0 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-black/25" />
+              <span
+                className="absolute left-0 top-1/2 size-1.5 rounded-full bg-black transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                style={{
+                  transform: `translate(${activeServiceDot * 13}px, -50%) scale(${activeServiceDot === 0 ? 1 : 1.15})`,
+                }}
+              />
             </div>
             </>}
           </div>
