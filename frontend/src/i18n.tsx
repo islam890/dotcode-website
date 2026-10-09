@@ -39,7 +39,7 @@ export function isAppRoutePath(pathname: string): boolean {
 
   return (
     route === "/" ||
-    /^\/(?:services|about|projects|work|contact|testimonials)(?:\/|$)/.test(
+    /^\/(?:services|about|projects|work|contact|testimonials|privacy-policy)(?:\/|$)/.test(
       route,
     )
   )

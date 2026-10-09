@@ -58,6 +58,11 @@ const ContactRoutePage = lazy(() =>
     default: module.ContactRoutePage,
   })),
 );
+const PrivacyPolicyPage = lazy(() =>
+  import("@/components/pages/PrivacyPolicyPage").then((module) => ({
+    default: module.PrivacyPolicyPage,
+  })),
+);
 
 function FooterRevealCurve() {
   return (
@@ -100,6 +105,7 @@ export default function App() {
     }
   }
   const isContactRoute = currentPath === "/contact";
+  const isPrivacyPolicyRoute = currentPath === "/privacy-policy";
   const isTestimonialsRoute = currentPath === "/testimonials";
   const isNotFoundRoute =
     currentPath !== "/" &&
@@ -109,6 +115,7 @@ export default function App() {
     !isProjectsRoute &&
     !projectSlug &&
     !isContactRoute &&
+    !isPrivacyPolicyRoute &&
     !isTestimonialsRoute;
 
   usePageMetadata(
@@ -289,6 +296,7 @@ export default function App() {
       projectSlug ||
       isTestimonialsRoute ||
       isContactRoute ||
+      isPrivacyPolicyRoute ||
       isNotFoundRoute ? (
         <Suspense fallback={null}>
           {isServicesRoute ? (
@@ -305,6 +313,8 @@ export default function App() {
             <TestimonialsPage />
           ) : isContactRoute ? (
             <ContactRoutePage />
+          ) : isPrivacyPolicyRoute ? (
+            <PrivacyPolicyPage />
           ) : (
             <NotFoundPage />
           )}
@@ -319,13 +329,15 @@ export default function App() {
           <AgencyMarquee />
         </main>
       )}
-      <FooterRevealCurve />
-      <div
-        ref={footerRevealSpacerRef}
-        aria-hidden="true"
-        className="h-dvh"
-      />
-      <Footer />
+      {!isPrivacyPolicyRoute && <>
+        <FooterRevealCurve />
+        <div
+          ref={footerRevealSpacerRef}
+          aria-hidden="true"
+          className="h-dvh"
+        />
+        <Footer />
+      </>}
       <PageTransition />
     </div>
   );

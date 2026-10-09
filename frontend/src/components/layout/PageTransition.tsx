@@ -73,6 +73,7 @@ function pageLabel(pathname: string): string {
     "/about": "About Us",
     "/projects": "Our Projects",
     "/testimonials": "Testimonials",
+    "/privacy-policy": "Privacy Policy",
   };
 
   if (labels[path]) return labels[path];

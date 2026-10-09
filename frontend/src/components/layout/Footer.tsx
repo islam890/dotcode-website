@@ -218,7 +218,12 @@ export function Footer() {
                     {newsletterMessage}{" "}
                   </span>
                 )}
-                <span className="font-semibold uppercase underline">privacy policy</span>
+                <a
+                  href="/privacy-policy"
+                  className="font-semibold uppercase underline underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b7ff3c]"
+                >
+                  privacy policy
+                </a>
               </p>
             </form>
           </div>
