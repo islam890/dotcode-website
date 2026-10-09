@@ -48,6 +48,8 @@
 
   "Rated 4.7/5 by 1,223+ clients": "Noté 4,7/5 par plus de 1 223 clients",
 
+  "Rated 4.7/5 by 20+ clients": "Noté 4,7/5 par +20 clients",
+
   "A Software & AI agency": "Une agence de logiciels et d’IA",
 
   "dedicated to building": "dédiée à la création de",
@@ -782,6 +784,12 @@
 
   "Phone number": "Numéro de téléphone",
 
+  Company: "Entreprise",
+
+  "Company name": "Nom de l’entreprise",
+
+  Budget: "Budget",
+
   "(optional)": "(facultatif)",
 
   "Choose phone country, currently ":
@@ -992,6 +1000,8 @@ export const arabic: Record<string, string> = {
   "Live calendar and messages integrations": "تكاملات فورية للتقويم والرسائل",
 
   "Rated 4.7/5 by 1,223+ clients": "تقييم 4.7 من 5 من أكثر من 1,223 عميلاً",
+
+  "Rated 4.7/5 by 20+ clients": "تقييم 4.7 من 5 من أكثر من 20 عميلاً",
 
   "A Software & AI agency": "وكالة للبرمجيات والذكاء الاصطناعي",
 
@@ -1657,6 +1667,12 @@ export const arabic: Record<string, string> = {
 
   "Phone number": "رقم الهاتف",
 
+  Company: "الشركة",
+
+  "Company name": "اسم الشركة",
+
+  Budget: "الميزانية",
+
   "(optional)": "(اختياري)",
 
   "Choose phone country, currently ": "اختر بلد رقم الهاتف، البلد الحالي: ",
@@ -1856,6 +1872,9 @@ export const german: Record<string, string> = {
 
   "Rated 4.7/5 by 1,223+ clients":
     "Bewertet mit 4,7 von 5 von über 1.223 Kunden",
+
+  "Rated 4.7/5 by 20+ clients":
+    "Bewertet mit 4,7 von 5 von +20 Kunden",
 
   "A Software & AI agency": "Eine Agentur für Software und KI",
 
@@ -2530,6 +2549,12 @@ export const german: Record<string, string> = {
 
   "Phone number": "Telefonnummer",
 
+  Company: "Unternehmen",
+
+  "Company name": "Name des Unternehmens",
+
+  Budget: "Budget",
+
   "(optional)": "(optional)",
 
   "Choose phone country, currently ": "Telefonland auswählen, aktuell: ",
@@ -2730,7 +2755,10 @@ export const spanish: Record<string, string> = {
     "Integraciones en tiempo real de calendario y mensajes",
 
   "Rated 4.7/5 by 1,223+ clients":
-    "Valoración de 4,7 sobre 5 de más de 1.223 clientes",
+    "Valoración de 4,7 sobre 5 de +1.223 clientes",
+
+  "Rated 4.7/5 by 20+ clients":
+    "Valoración de 4,7 sobre 5 de +20 clientes",
 
   "A Software & AI agency": "Una agencia de software e IA",
 
@@ -3403,6 +3431,12 @@ export const spanish: Record<string, string> = {
   "SOFTWARE & AI AGENCY": "AGENCIA DE SOFTWARE E IA",
 
   "Phone number": "Número de teléfono",
+
+  Company: "Empresa",
+
+  "Company name": "Nombre de la empresa",
+
+  Budget: "Presupuesto",
 
   "(optional)": "(opcional)",
 
