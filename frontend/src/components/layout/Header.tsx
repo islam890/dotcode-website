@@ -69,6 +69,20 @@ function getLanguageName(language: (typeof languages)[number]) {
   return language.name;
 }
 
+function LanguageFlag({ src }: { src: string }) {
+  return (
+    <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-full">
+      <img
+        src={src}
+        alt=""
+        width="40"
+        height="20"
+        className="h-4 w-8 max-w-none object-cover"
+      />
+    </span>
+  );
+}
+
 function getDateTime(locale: "en" | "fr" | "ar" | "de" | "es") {
   const now = new Date();
   const intlLocale = locale === "fr" ? "fr-FR" : locale === "ar" ? "ar-DZ" : locale === "de" ? "de-DE" : locale === "es" ? "es-ES" : "en-GB";
@@ -824,6 +838,8 @@ export default function Header() {
             <a href="/" aria-label="DotCode home" className="block h-[32px] w-[59px] shrink-0 sm:h-[38px] sm:w-[70px] lg:h-[42px] lg:w-[77px]">
               <img
                 alt="DotCode"
+                width="391"
+                height="213"
                 className="size-full object-contain"
                 src={images.group61}
               />
@@ -883,11 +899,7 @@ export default function Header() {
               }
               className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-white backdrop-blur-sm transition-colors duration-200 sm:px-3"
             >
-              <img
-                src={selectedLanguage.flag}
-                alt=""
-                className="size-[16px] rounded-full object-cover"
-              />
+              <LanguageFlag src={selectedLanguage.flag} />
 
               <span className="font-inter text-[12px] font-bold sm:text-[14px]">
                 {selectedLanguage.code}
@@ -917,11 +929,7 @@ export default function Header() {
                         : "text-[#111111] hover:bg-[#f3f4f6]"
                     }`}
                   >
-                    <img
-                      src={language.flag}
-                      alt=""
-                      className="size-[16px] rounded-full object-cover"
-                    />
+                    <LanguageFlag src={language.flag} />
 
                     <span className="flex-1 font-inter text-[13px] font-medium">
                       {getLanguageName(language)}
@@ -955,6 +963,8 @@ export default function Header() {
               <img
                 src={flaticonIcons.phone}
                 alt=""
+                width="512"
+                height="512"
                 className="size-4 brightness-0 sm:size-[18px] lg:size-5"
                 aria-hidden="true"
               />

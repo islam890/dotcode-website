@@ -22,17 +22,13 @@
       />
     </noscript>
 
-    <script>
-      if (/^\/(en|fr|ar|de|es)\/?$/i.test(window.location.pathname)) {
-        const preload = document.createElement("link");
-        preload.rel = "preload";
-        preload.as = "image";
-        preload.type = "image/webp";
-        preload.href = "/assets/hero-card-2.webp";
-        preload.fetchPriority = "high";
-        document.head.append(preload);
-      }
-    </script>
+    <link
+      rel="preload"
+      as="image"
+      href="/assets/c8f23.webp"
+      type="image/webp"
+      fetchpriority="high"
+    />
 
     <meta name="theme-color" content="#5b9bd5" />
 

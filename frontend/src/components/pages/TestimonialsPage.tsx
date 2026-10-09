@@ -25,6 +25,8 @@ function ClientIdentity({ testimonial }: { testimonial: Testimonial }) {
           <img
             src={testimonial.avatar_url}
             alt={testimonial.client_name}
+            width="44"
+            height="44"
             loading="lazy"
             className="absolute inset-0 size-full object-cover"
             onError={(event) => {

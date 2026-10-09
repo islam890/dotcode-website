@@ -13,6 +13,7 @@ import { Services } from "@/components/sections/Services";
 import { useGlobalButtonMotion } from "@/hooks/useGlobalButtonMotion";
 import { useRevealAnimations } from "@/hooks/useRevealAnimations";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { scheduleScrollTriggerRefresh } from "@/hooks/scheduleScrollTriggerRefresh";
 import { stripLocaleFromPath, useLocale } from "@/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -118,8 +119,7 @@ export default function App() {
   );
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => window.cancelAnimationFrame(frame);
+    scheduleScrollTriggerRefresh();
   }, [locale]);
 
   useEffect(() => {
@@ -213,8 +213,6 @@ export default function App() {
       });
     }, root);
 
-    ScrollTrigger.refresh();
-
     return () => context.revert();
   }, [rootRef, isNotFoundRoute]);
 
@@ -278,8 +276,6 @@ export default function App() {
         0,
       );
     });
-
-    ScrollTrigger.refresh();
 
     return () => media.revert();
   }, [rootRef]);

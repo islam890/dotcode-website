@@ -83,6 +83,8 @@ export function Brands() {
               <img
                 src={src}
                 alt={name}
+                width="390"
+                height="144"
                 loading="lazy"
                 decoding="async"
                 className="max-h-[65%] max-w-[85%] object-contain"

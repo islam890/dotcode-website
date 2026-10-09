@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
 import { services } from "@/data/services";
+import { scheduleScrollTriggerRefresh } from "@/hooks/scheduleScrollTriggerRefresh";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,8 +50,7 @@ export function Services() {
     .slice(0, 3);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => window.cancelAnimationFrame(frame);
+    scheduleScrollTriggerRefresh();
   }, []);
 
   useEffect(() => {

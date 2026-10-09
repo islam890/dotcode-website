@@ -199,9 +199,11 @@ body {
   }
 }
 
-img {
-  display: block;
-  max-width: 100%;
+@layer base {
+  img {
+    display: block;
+    max-width: 100%;
+  }
 }
 
 a,

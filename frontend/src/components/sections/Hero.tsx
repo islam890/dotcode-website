@@ -115,7 +115,7 @@ export function Hero() {
         aria-hidden="true"
         width="736"
         height="1308"
-        fetchPriority="low"
+        fetchPriority="high"
         pictureClassName="absolute inset-0 size-full"
         className="absolute inset-0 size-full object-cover opacity-90"
       />

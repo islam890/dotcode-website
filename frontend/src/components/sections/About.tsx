@@ -5,6 +5,7 @@ import { ChartPie, Lightbulb } from "lucide-react";
 import { images } from "@/data/site";
 import { useLocale } from "@/i18n";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { scheduleScrollTriggerRefresh } from "@/hooks/scheduleScrollTriggerRefresh";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,7 +34,7 @@ export function About() {
           },
         });
       }, text);
-      ScrollTrigger.refresh();
+      scheduleScrollTriggerRefresh();
     });
 
     return () => {
@@ -172,6 +173,8 @@ export function About() {
                 <div className="absolute inset-0 overflow-hidden rounded-[24px]">
                   <OptimizedImage
                     alt=""
+                    width="736"
+                    height="1472"
                     className="absolute inset-0 size-full object-cover"
                     src={images.rectangle35}
                     loading="lazy"
@@ -181,6 +184,8 @@ export function About() {
 
                 <OptimizedImage
                   alt=""
+                  width="735"
+                  height="1008"
                   className="absolute bottom-0 right-0 z-10 h-[150%] object-contain"
                   src={images.image11}
                   loading="lazy"
@@ -233,6 +238,8 @@ export function About() {
                   >
                     <OptimizedImage
                       alt=""
+                      width="160"
+                      height="160"
                       className="size-full object-cover"
                       src={avatar}
                       loading="lazy"

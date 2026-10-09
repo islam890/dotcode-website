@@ -126,6 +126,8 @@ export function Footer() {
               <div data-footer-brand-logo className="h-[100px] w-[150px] sm:h-[110px] sm:w-[160px] lg:h-[120px] lg:w-[170px]">
                 <img
                   alt="DotCode"
+                  width="361"
+                  height="263"
                   className="size-full object-contain"
                   src={images.group101}
                 />
