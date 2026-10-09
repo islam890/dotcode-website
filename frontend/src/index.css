@@ -1,6 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Syne:wght@400..800&display=swap");
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
+
+[class~="text-black/35"],
+[class~="text-black/30"],
+[class~="text-black/40"],
+[class~="text-black/45"],
+[class~="text-black/50"],
+[class~="text-black/55"] {
+  color: rgb(0 0 0 / 60%);
+}
+
+[class~="placeholder:text-black/35"]::placeholder,
+[class~="placeholder:text-black/40"]::placeholder {
+  color: rgb(0 0 0 / 60%);
+}
+
+[class~="placeholder:text-white/30"]::placeholder {
+  color: rgb(255 255 255 / 60%);
+}
 
 @theme {
   --font-inter: "Inter", sans-serif;

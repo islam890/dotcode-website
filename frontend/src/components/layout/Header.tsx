@@ -1028,6 +1028,7 @@ export default function Header() {
               ref={menuPanelRef}
               id="site-menu-panel"
               data-rtl-anchor="end-panel"
+              aria-labelledby="site-menu-title"
               className={`fixed right-0 top-0 z-[205] h-dvh w-[min(92vw,560px)] overflow-hidden bg-[#0A0A0A] text-white sm:w-[min(560px,58vw)] md:w-[min(500px,62vw)] lg:w-[min(740px,40vw)] ${
                 menuOpen
                   ? "pointer-events-auto"
@@ -1042,6 +1043,7 @@ export default function Header() {
               <div className="h-full min-h-dvh overflow-y-auto overscroll-contain flex flex-col justify-between md:justify-start px-6 pb-16 pt-20 md:px-10 md:pb-16 md:pt-20 lg:justify-between lg:px-16">
                 <div>
                   <p
+                    id="site-menu-title"
                     ref={menuIntroRef}
                     className="mb-7 text-xs font-semibold uppercase tracking-[0.14em] text-white/45"
                   >

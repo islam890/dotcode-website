@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChartPie, Lightbulb } from "lucide-react";
 import { images } from "@/data/site";
 import { useLocale } from "@/i18n";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -169,7 +170,7 @@ export function About() {
             <div className="relative flex h-full flex-col justify-end pb-4 md:pb-0">
               <div className="relative h-[min(76vw,280px)] w-full rounded-[24px] border border-black/5 bg-[#eef3f9] shadow-[0_20px_40px_rgba(15,23,42,0.05)] sm:h-[320px] md:h-auto md:aspect-[1.28]">
                 <div className="absolute inset-0 overflow-hidden rounded-[24px]">
-                  <img
+                  <OptimizedImage
                     alt=""
                     className="absolute inset-0 size-full object-cover"
                     src={images.rectangle35}
@@ -178,7 +179,7 @@ export function About() {
                   />
                 </div>
 
-                <img
+                <OptimizedImage
                   alt=""
                   className="absolute bottom-0 right-0 z-10 h-[150%] object-contain"
                   src={images.image11}
@@ -230,7 +231,7 @@ export function About() {
                     key={`${avatar}-${index}`}
                     className="-mr-1 size-[36px] overflow-hidden rounded-full border-[2px] border-white shadow-[0_8px_16px_rgba(15,23,42,0.08)] sm:size-[30px] md:size-[40px]"
                   >
-                    <img
+                    <OptimizedImage
                       alt=""
                       className="size-full object-cover"
                       src={avatar}

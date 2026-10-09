@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { useLocale } from "@/i18n";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 const heroCards = [
   { src: "/assets/hero-card-1.png", alt: "Income and expense dashboard" },
@@ -32,12 +33,16 @@ export function Hero() {
       const centerCard = cards[heroCards.length];
       let loopWidth = 0;
       let startX = 0;
+      let rootWidth = 0;
+      let cardCenters: number[] = [];
       let horizontalLoop: gsap.core.Tween | undefined;
 
       const positionTrack = () => {
         gsap.set(track, { x: 0 });
         const rootRect = cardsRoot.getBoundingClientRect();
         const trackRect = track.getBoundingClientRect();
+        rootWidth = rootRect.width;
+        cardCenters = cards.map((card) => card.offsetLeft + card.offsetWidth / 2);
         loopWidth = centerCard.offsetLeft - cards[0].offsetLeft;
         startX =
           rootRect.left +
@@ -47,21 +52,19 @@ export function Hero() {
       };
 
       const updateCardCurve = () => {
-        const rootRect = cardsRoot.getBoundingClientRect();
-        const center = rootRect.left + rootRect.width / 2;
-        const focusRange = Math.max(rootRect.width * 0.52, 1);
-        const curveDepth = rootRect.width * 0.06;
+        const trackX = Number(gsap.getProperty(track, "x")) || 0;
+        const focusRange = Math.max(rootWidth * 0.52, 1);
+        const curveDepth = rootWidth * 0.06;
 
-        cards.forEach((card) => {
-          const cardRect = card.getBoundingClientRect();
-          const distance = cardRect.left + cardRect.width / 2 - center;
+        cards.forEach((card, index) => {
+          const distance = trackX + cardCenters[index] - rootWidth / 2;
           const normalizedDistance = gsap.utils.clamp(-1.4, 1.4, distance / focusRange);
           const distanceFromCenter = Math.min(Math.abs(normalizedDistance), 1);
           const centerFocus = 1 - distanceFromCenter;
           const edgeFade = gsap.utils.clamp(
             0,
             1,
-            (Math.abs(distance) - rootRect.width * 0.34) / Math.max(rootRect.width * 0.16, 1),
+            (Math.abs(distance) - rootWidth * 0.34) / Math.max(rootWidth * 0.16, 1),
           );
 
           gsap.set(card, {
@@ -106,10 +109,14 @@ export function Hero() {
 
   return (
     <section id="home" data-hero-section className="relative min-h-dvh w-full overflow-hidden bg-[#5b9bd5]">
-      <img
+      <OptimizedImage
         src={images.heroSection}
         alt=""
         aria-hidden="true"
+        width="736"
+        height="1308"
+        fetchPriority="low"
+        pictureClassName="absolute inset-0 size-full"
         className="absolute inset-0 size-full object-cover opacity-90"
       />
       <div
@@ -202,16 +209,22 @@ export function Hero() {
                 data-hero-cards
                 dir="ltr"
                 className="relative h-[clamp(10rem,16vw,14rem)] w-screen overflow-hidden [perspective:1200px]"
+                role="group"
                 aria-label="Featured product visuals"
                 ref={heroCardsRef}
               >
                 <div className="hero-card-track">
-                  {[...heroCards, ...heroCards, ...heroCards, ...heroCards].map(
+                  {[...heroCards, ...heroCards, ...heroCards].map(
                     (card, index) => (
-                      <img
+                      <OptimizedImage
                         key={`${card.src}-${index}`}
                         src={card.src}
                         alt={card.alt}
+                        width="768"
+                        height="768"
+                        decoding="async"
+                        loading={card.src.includes("hero-card-2") ? "eager" : "lazy"}
+                        fetchPriority={card.src.includes("hero-card-2") ? "high" : "auto"}
                         className="hero-card"
                       />
                     ),
@@ -258,10 +271,13 @@ export function Hero() {
 export function PageHero({ children }: { children: ReactNode }) {
   return (
     <section data-hero-section className="relative overflow-hidden bg-[#5b9bd5] text-white">
-      <img
+      <OptimizedImage
         src={images.heroSection}
         alt=""
         aria-hidden="true"
+        width="736"
+        height="1308"
+        pictureClassName="absolute inset-0 size-full"
         className="absolute inset-0 size-full object-cover opacity-90"
       />
       <div

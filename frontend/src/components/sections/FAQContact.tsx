@@ -576,7 +576,6 @@ function ChoiceField({
           type="button"
           aria-haspopup="listbox"
           aria-expanded={open}
-          aria-required={required}
           aria-invalid={invalid}
           onClick={() => setOpen((current) => !current)}
           className={`${fieldClassName} flex items-center justify-between text-left aria-[invalid=true]:border-red-500 ${value ? "" : "text-black/40"}`}

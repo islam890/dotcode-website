@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -8,23 +8,55 @@ import { AgencyMarquee } from "@/components/sections/AgencyMarquee";
 import { About } from "@/components/sections/About";
 import { Announcement } from "@/components/sections/Announcement";
 import { FAQContact } from "@/components/sections/FAQContact";
-import { Brands } from "@/components/sections/Brands";
 import { Hero } from "@/components/sections/Hero";
 import { Services } from "@/components/sections/Services";
-import { AboutPage } from "@/components/pages/AboutPage";
-import { NotFoundPage } from "@/components/pages/NotFoundPage";
-import { ProjectsPage } from "@/components/pages/ProjectsPage";
-import { ProjectDetailPage } from "@/components/pages/ProjectDetailPage";
-import { ServiceDetailPage } from "@/components/pages/ServiceDetailPage";
-import { ServicesPage } from "@/components/pages/ServicesPage";
-import { TestimonialsPage } from "@/components/pages/TestimonialsPage";
-import { ContactRoutePage } from "@/components/pages/ContactRoutePage";
 import { useGlobalButtonMotion } from "@/hooks/useGlobalButtonMotion";
 import { useRevealAnimations } from "@/hooks/useRevealAnimations";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
 import { stripLocaleFromPath, useLocale } from "@/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const AboutPage = lazy(() =>
+  import("@/components/pages/AboutPage").then((module) => ({
+    default: module.AboutPage,
+  })),
+);
+const NotFoundPage = lazy(() =>
+  import("@/components/pages/NotFoundPage").then((module) => ({
+    default: module.NotFoundPage,
+  })),
+);
+const ProjectsPage = lazy(() =>
+  import("@/components/pages/ProjectsPage").then((module) => ({
+    default: module.ProjectsPage,
+  })),
+);
+const ProjectDetailPage = lazy(() =>
+  import("@/components/pages/ProjectDetailPage").then((module) => ({
+    default: module.ProjectDetailPage,
+  })),
+);
+const ServiceDetailPage = lazy(() =>
+  import("@/components/pages/ServiceDetailPage").then((module) => ({
+    default: module.ServiceDetailPage,
+  })),
+);
+const ServicesPage = lazy(() =>
+  import("@/components/pages/ServicesPage").then((module) => ({
+    default: module.ServicesPage,
+  })),
+);
+const TestimonialsPage = lazy(() =>
+  import("@/components/pages/TestimonialsPage").then((module) => ({
+    default: module.TestimonialsPage,
+  })),
+);
+const ContactRoutePage = lazy(() =>
+  import("@/components/pages/ContactRoutePage").then((module) => ({
+    default: module.ContactRoutePage,
+  })),
+);
 
 function FooterRevealCurve() {
   return (
@@ -254,33 +286,42 @@ export default function App() {
 
   return (
     <div ref={rootRef} className="relative isolate w-full">
-      {isServicesRoute ? (
-        <ServicesPage />
-      ) : serviceSlug ? (
-        <ServiceDetailPage slug={serviceSlug} />
-      ) : isAboutRoute ? (
-        <AboutPage />
-      ) : isProjectsRoute ? (
-        <ProjectsPage />
-      ) : projectSlug ? (
-        <ProjectDetailPage slug={projectSlug} />
-      ) : isTestimonialsRoute ? (
-        <TestimonialsPage />
-      ) : isContactRoute ? (
-        <ContactRoutePage />
-      ) : isNotFoundRoute ? (
-        <NotFoundPage />
+      {isServicesRoute ||
+      serviceSlug ||
+      isAboutRoute ||
+      isProjectsRoute ||
+      projectSlug ||
+      isTestimonialsRoute ||
+      isContactRoute ||
+      isNotFoundRoute ? (
+        <Suspense fallback={null}>
+          {isServicesRoute ? (
+            <ServicesPage />
+          ) : serviceSlug ? (
+            <ServiceDetailPage slug={serviceSlug} />
+          ) : isAboutRoute ? (
+            <AboutPage />
+          ) : isProjectsRoute ? (
+            <ProjectsPage />
+          ) : projectSlug ? (
+            <ProjectDetailPage slug={projectSlug} />
+          ) : isTestimonialsRoute ? (
+            <TestimonialsPage />
+          ) : isContactRoute ? (
+            <ContactRoutePage />
+          ) : (
+            <NotFoundPage />
+          )}
+        </Suspense>
       ) : (
-        <>
-          <main className="relative z-10 w-full bg-white">
-            <Hero />
-            <About />
-            <Services />
-            <Announcement />
-            <FAQContact />
-            <AgencyMarquee />
-          </main>
-        </>
+        <main className="relative z-10 w-full bg-white">
+          <Hero />
+          <About />
+          <Services />
+          <Announcement />
+          <FAQContact />
+          <AgencyMarquee />
+        </main>
       )}
       <FooterRevealCurve />
       <div

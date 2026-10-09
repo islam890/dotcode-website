@@ -5,6 +5,7 @@ import { ApiError } from "@/api/client";
 import { createNewsletterSubscription } from "@/api/newsletter";
 import { images, socialLinks } from "@/data/site";
 import { flaticonAttributions, flaticonIcons } from "@/data/flaticonIcons";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 const socialIcons = {
   Facebook: FaFacebookF,
@@ -47,8 +48,12 @@ export function Footer() {
       data-site-footer
       className="fixed inset-x-0 bottom-0 z-0 h-dvh max-h-dvh overflow-y-auto overflow-x-hidden bg-black px-4 py-8 text-white sm:px-8 xl:px-10 xl:py-6"
     >
-      <img
+      <OptimizedImage
         alt=""
+        width="1200"
+        height="1200"
+        loading="lazy"
+        decoding="async"
         className="pointer-events-none absolute right-0 top-1/2 hidden h-[743px] w-[746px] max-w-none -translate-y-1/2 object-cover opacity-35 lg:block"
         src={images.rectangle45}
       />

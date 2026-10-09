@@ -1,4 +1,5 @@
 import { images } from "@/data/site";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export function Announcement() {
   return (
@@ -9,22 +10,38 @@ export function Announcement() {
       <div className="relative mx-auto aspect-[2.6] w-full max-w-[1530px] sm:aspect-[1.7] md:aspect-[2.4] lg:aspect-[3.7]">
         <div
           aria-hidden="true"
-          className="absolute inset-0 z-0 bg-center bg-no-repeat md:hidden"
-          style={{
-            backgroundImage: "url('/assets/announcement-phone.png')",
-            backgroundSize: "100% 100%",
-          }}
-        />
+          className="absolute inset-0 z-0 md:hidden"
+        >
+          <OptimizedImage
+            src="/assets/announcement-phone.png"
+            alt=""
+            width="1600"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            className="size-full object-fill"
+          />
+        </div>
         <div
           aria-hidden="true"
-          className="absolute inset-0 z-0 hidden bg-center bg-no-repeat md:block"
-          style={{
-            backgroundImage: `url(${images.subtract})`,
-            backgroundSize: "100% 100%",
-          }}
-        />
-        <img
+          className="absolute inset-0 z-0 hidden md:block"
+        >
+          <OptimizedImage
+            src={images.subtract}
+            alt=""
+            width="3060"
+            height="1080"
+            loading="lazy"
+            decoding="async"
+            className="size-full object-fill"
+          />
+        </div>
+        <OptimizedImage
           alt="Digital idea illustration"
+          width="412"
+          height="521"
+          loading="lazy"
+          decoding="async"
           className="absolute bottom-0 left-[45%] h-[110%] -translate-x-1/2 object-contain [clip-path:inset(10%_0_0)] sm:left-[30%] sm:h-[100%] sm:[clip-path:inset(7%_0_0)] md:left-[39%] md:h-[100%] md:[clip-path:inset(5%_0_0)]"
           src={images.icon}
         />

@@ -25,21 +25,21 @@ export function useRevealAnimations<T extends HTMLElement>() {
       if (heroHead.length) {
         heroTimeline.from(
           heroHead,
-          { y: 40, opacity: 0, duration: 0.9, stagger: 0.12 },
+          { opacity: 0, duration: 0.9, stagger: 0.12 },
           "-=0.4",
         );
       }
       if (heroCopy.length) {
         heroTimeline.from(
           heroCopy,
-          { y: 30, opacity: 0, duration: 0.8 },
+          { opacity: 0, duration: 0.8 },
           "-=0.5",
         );
       }
       if (heroCta.length) {
         heroTimeline.from(
           heroCta,
-          { y: 20, opacity: 0, duration: 0.7 },
+          { opacity: 0, duration: 0.7 },
           "-=0.5",
         );
       }
@@ -48,7 +48,7 @@ export function useRevealAnimations<T extends HTMLElement>() {
       if (heroObject.length) {
         heroTimeline.from(
           heroObject,
-          { y: 60, opacity: 0, scale: 0.96, duration: 1 },
+          { opacity: 0, scale: 0.96, duration: 1 },
           "-=0.4",
         );
       }
