@@ -21,7 +21,7 @@ const menuSocials = [
   },
   {
     label: "Instagram",
-    href: "https://www.instagram.com/dotcode_agency?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==",
+    href: "https://www.instagram.com/dotcode.agency/",
   },
   {
     label: "LinkedIn",
