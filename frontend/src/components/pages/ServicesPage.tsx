@@ -5,6 +5,7 @@ import { services } from "@/data/services";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { usePageSectionReveals } from "@/hooks/useRevealAnimations";
 
 const serviceTagsBySlug: Record<string, string[]> = {
   "web-development": ["Websites", "Web applications", "Responsive design"],
@@ -47,6 +48,7 @@ const process = [
 ] as const;
 
 export function ServicesPage() {
+  const sectionRevealRef = usePageSectionReveals<HTMLElement>();
   const publishedServices = services
     .filter((service) => service.published)
     .sort((a, b) => a.order - b.order || a.id - b.id);
@@ -63,7 +65,7 @@ export function ServicesPage() {
 
   return (
     <>
-      <main className="relative z-10 w-full bg-white">
+      <main ref={sectionRevealRef} className="relative z-10 w-full bg-white">
         <PageHero>
           <Header />
           <div data-hero-layout className="mx-auto flex min-h-[62svh] w-full max-w-[1508px] flex-col justify-between gap-12 px-4 pb-8 pt-14 sm:min-h-[68svh] sm:px-8 sm:pb-12 sm:pt-20 lg:px-10 lg:pt-16">

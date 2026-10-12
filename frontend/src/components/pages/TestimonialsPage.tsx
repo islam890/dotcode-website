@@ -5,6 +5,7 @@ import { testimonials as publishedTestimonials, type Testimonial } from "@/data/
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { usePageSectionReveals } from "@/hooks/useRevealAnimations";
 
 function getInitials(name: string) {
   return name
@@ -95,7 +96,7 @@ function TestimonialMarquee({ testimonials }: { testimonials: Testimonial[] }) {
   }, [testimonials]);
 
   return (
-    <div className="overflow-hidden py-2">
+    <div data-reveal className="overflow-hidden py-2">
       <div ref={trackRef} className="flex w-max items-stretch gap-4 will-change-transform sm:gap-6">
         {[...testimonials, ...testimonials].map((testimonial, index) => (
           <article key={`${testimonial.id}-${index}`} className="flex w-[min(82vw,480px)] shrink-0 flex-col justify-between border border-black/10 bg-[#f7f7f7] p-6 sm:min-h-[300px] sm:p-8 lg:p-10">
@@ -114,6 +115,7 @@ function TestimonialMarquee({ testimonials }: { testimonials: Testimonial[] }) {
 }
 
 export function TestimonialsPage() {
+  const sectionRevealRef = usePageSectionReveals<HTMLElement>();
   const testimonials = publishedTestimonials.filter((testimonial) => testimonial.published);
 
   usePageMetadata(
@@ -128,7 +130,7 @@ export function TestimonialsPage() {
 
   return (
     <>
-      <main className="relative z-10 w-full bg-white text-black">
+      <main ref={sectionRevealRef} className="relative z-10 w-full bg-white text-black">
         <PageHero>
           <Header />
           <div className="relative mx-auto flex min-h-[64svh] w-full max-w-[1508px] flex-col justify-between gap-12 px-4 pb-8 pt-10 sm:min-h-[72svh] sm:px-8 sm:pb-12 sm:pt-14 lg:px-10 lg:pt-16">

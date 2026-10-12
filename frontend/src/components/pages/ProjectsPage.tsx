@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { allProjects, type Project } from "@/data/projects";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { usePageSectionReveals } from "@/hooks/useRevealAnimations";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -76,7 +77,7 @@ function ProjectArchiveRow({ project, hovered, onHover }: { project: Project; ho
   );
 
   return (
-    <a data-project-item href={projectRoute(project.slug)} className="group relative block border-b border-black/10 px-2 py-6 transition-colors duration-300 hover:bg-black/[0.018] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] sm:px-4 sm:py-8" aria-label={`View project: ${project.title}`} onMouseEnter={(event) => onHover(project.id, event.clientX, event.clientY)} onMouseMove={(event) => onHover(project.id, event.clientX, event.clientY)} onMouseLeave={() => onHover(null)} onFocus={(event) => { const rect = event.currentTarget.getBoundingClientRect(); onHover(project.id, rect.left + rect.width / 2, rect.top + rect.height / 2); }} onBlur={() => onHover(null)}>
+    <a data-project-item data-reveal href={projectRoute(project.slug)} className="group relative block border-b border-black/10 px-2 py-6 transition-colors duration-300 hover:bg-black/[0.018] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#455CE9] sm:px-4 sm:py-8" aria-label={`View project: ${project.title}`} onMouseEnter={(event) => onHover(project.id, event.clientX, event.clientY)} onMouseMove={(event) => onHover(project.id, event.clientX, event.clientY)} onMouseLeave={() => onHover(null)} onFocus={(event) => { const rect = event.currentTarget.getBoundingClientRect(); onHover(project.id, rect.left + rect.width / 2, rect.top + rect.height / 2); }} onBlur={() => onHover(null)}>
       {content}
     </a>
   );
@@ -84,10 +85,11 @@ function ProjectArchiveRow({ project, hovered, onHover }: { project: Project; ho
 
 function ProjectGridCard({ project }: { project: Project }) {
   const content = <><ProjectArtwork project={project} /><div className="flex items-start justify-between gap-4 pt-4"><div><p className="font-inter text-[9px] font-bold uppercase tracking-[0.12em] text-black/45">{project.category}</p><h3 className="mt-2 font-sora text-2xl font-medium tracking-[-0.06em]">{project.title}</h3><p className="mt-2 font-inter text-xs leading-relaxed text-black/55">{project.short_description}</p></div><ArrowUpRight className="mt-1 size-5 shrink-0" aria-hidden="true" /></div></>;
-  return <a className="group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#455CE9]" href={projectRoute(project.slug)} aria-label={`View project: ${project.title}`}>{content}</a>;
+  return <a data-project-item data-reveal className="group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#455CE9]" href={projectRoute(project.slug)} aria-label={`View project: ${project.title}`}>{content}</a>;
 }
 
 export function ProjectsPage() {
+  const sectionRevealRef = usePageSectionReveals<HTMLElement>();
   const projects = useMemo(() => orderProjects(allProjects), []);
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -165,7 +167,7 @@ export function ProjectsPage() {
 
   return (
     <>
-      <main className="relative z-10 w-full bg-white">
+      <main ref={sectionRevealRef} className="relative z-10 w-full bg-white">
         <PageHero>
           <Header />
           <div className="relative mx-auto flex min-h-[62svh] w-full max-w-[1508px] flex-col justify-between gap-12 px-4 pb-8 pt-14 sm:min-h-[68svh] sm:px-8 sm:pb-12 sm:pt-20 lg:px-10 lg:pt-16">
@@ -192,7 +194,7 @@ export function ProjectsPage() {
             </div>
 
             {canShowProjects && projects.length > 0 && (
-              <div className="mb-8 flex flex-wrap items-center justify-between gap-5 sm:mb-12">
+              <div data-reveal className="mb-8 flex flex-wrap items-center justify-between gap-5 sm:mb-12">
                 <nav aria-label="Filter projects by category" className="flex flex-wrap gap-2 sm:gap-3">
                   {categories.map((category) => {
                     const selected = activeCategory === category;
@@ -223,9 +225,9 @@ export function ProjectsPage() {
 
 
 
-            {projects.length === 0 && <div className="border-y border-black/15 py-14 text-center sm:py-20"><p className="font-sora text-[clamp(1.8rem,5vw,3.2rem)] font-semibold tracking-[-0.06em]">The next project is taking shape.</p><p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-black/60">We&rsquo;re preparing the work to share here. Have an idea of your own? Let&rsquo;s make it real.</p></div>}
+            {projects.length === 0 && <div data-reveal className="border-y border-black/15 py-14 text-center sm:py-20"><p className="font-sora text-[clamp(1.8rem,5vw,3.2rem)] font-semibold tracking-[-0.06em]">The next project is taking shape.</p><p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-black/60">We&rsquo;re preparing the work to share here. Have an idea of your own? Let&rsquo;s make it real.</p></div>}
 
-            {projects.length > 0 && visibleProjects.length === 0 && <div className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">No projects in this category yet.</div>}
+            {projects.length > 0 && visibleProjects.length === 0 && <div data-reveal className="border-y border-black/15 py-14 text-center font-inter text-sm text-black/55">No projects in this category yet.</div>}
 
             {canShowProjects && visibleProjects.length > 0 && (
               <div ref={listRef} className="relative">

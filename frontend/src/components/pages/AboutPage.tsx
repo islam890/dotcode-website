@@ -2,6 +2,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageHero } from "@/components/sections/Hero";
 import { usePageMetadata } from "@/hooks/usePageMetadata";
+import { usePageSectionReveals } from "@/hooks/useRevealAnimations";
 
 const principles = [
   {
@@ -45,6 +46,7 @@ const approach = [
 ] as const;
 
 export function AboutPage() {
+  const sectionRevealRef = usePageSectionReveals<HTMLElement>();
   usePageMetadata(
     "About Us | DotCode",
     "DotCode is a software and AI agency building thoughtful digital products, websites and applications from idea to launch.",
@@ -52,7 +54,7 @@ export function AboutPage() {
 
   return (
     <>
-      <main className="relative z-10 w-full bg-white">
+      <main ref={sectionRevealRef} className="relative z-10 w-full bg-white">
       <PageHero>
         <Header />
         <div className="relative mx-auto flex min-h-[62svh] w-full max-w-[1508px] flex-col justify-between gap-12 px-4 pb-8 pt-14 sm:min-h-[68svh] sm:px-8 sm:pb-12 sm:pt-20 lg:px-10 lg:pt-16">
