@@ -46,7 +46,7 @@
   background-repeat: no-repeat;
 }
 
-/* Dark gradient starting right from the upper section */
+/* Smooth dark gradient without hard cuts */
 #dotcode-links-page .links-hero::before {
   position: absolute;
   z-index: 0;
@@ -55,43 +55,43 @@
   background: linear-gradient(
     to bottom,
     rgba(16, 21, 23, 0) 0%,
-    rgba(16, 21, 23, 0.45) 18%,
-    rgba(16, 21, 23, 0.85) 40%,
-    #101517 90%
+    rgba(16, 21, 23, 0.3) 20%,
+    rgba(16, 21, 23, 0.75) 50%,
+    #101517 95%
   );
   content: "";
   pointer-events: none;
 }
 
-/* Backdrop blur covers high enough behind logo & title */
+/* Seamless backdrop blur covering full height */
 #dotcode-links-page .links-hero::after {
   position: absolute;
   z-index: 1;
-  inset: 0;                      /* Full hero coverage */
-  background: rgba(16, 21, 23, 0.4);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  inset: 0;                      
+  background: rgba(16, 21, 23, 0.35);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(0, 0, 0, 0.5) 15%,
-    rgba(0, 0, 0, 0.9) 30%,
-    #000 50%,
+    rgba(0, 0, 0, 0.2) 15%,
+    rgba(0, 0, 0, 0.7) 40%,
+    #000 70%,
     #000 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(0, 0, 0, 0.5) 15%,
-    rgba(0, 0, 0, 0.9) 30%,
-    #000 50%,
+    rgba(0, 0, 0, 0.2) 15%,
+    rgba(0, 0, 0, 0.7) 40%,
+    #000 70%,
     #000 100%
   );
   content: "";
   pointer-events: none;
 }
 
-/* Keep logo and text above overlays. */
+/* Keep logo and text above overlays */
 #dotcode-links-page .links-logo,
 #dotcode-links-page .links-intro {
   position: relative;
@@ -554,6 +554,34 @@
     gap: 16px;
     padding: 24px;
     border-radius: 26px;
+  }
+
+  /* Smooth gradient adjustment for Desktop */
+  #dotcode-links-page .links-hero::before {
+    background: linear-gradient(
+      to bottom,
+      rgba(16, 21, 23, 0) 0%,
+      rgba(16, 21, 23, 0.25) 30%,
+      rgba(16, 21, 23, 0.8) 65%,
+      #101517 100%
+    );
+  }
+
+  #dotcode-links-page .links-hero::after {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.3) 25%,
+      #000 65%,
+      #000 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.3) 25%,
+      #000 65%,
+      #000 100%
+    );
   }
 
   #dotcode-links-page .links-logo {
