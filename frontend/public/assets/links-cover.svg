@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1128 191" fill="none">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="191" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#bfe7f1"/>
+      <stop offset=".58" stop-color="#9bc8d5"/>
+      <stop offset="1" stop-color="#81a98d"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="120" x2="0" y2="191" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a4ce7d" stop-opacity="0"/>
+      <stop offset=".56" stop-color="#8cab49" stop-opacity=".78"/>
+      <stop offset="1" stop-color="#526b38"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1128" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d9f4fb" stop-opacity=".2"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#d5eff2" stop-opacity=".22"/>
+    </linearGradient>
+    <filter id="soft" x="-10%" y="-20%" width="120%" height="150%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+  <rect width="1128" height="191" fill="url(#sky)"/>
+  <g opacity=".3" fill="#fff">
+    <path d="M0 28h1128v21H0zM0 94h1128v14H0zM0 159h1128v12H0z"/>
+    <path d="M12 0h17v191H12zM136 0h12v191h-12zM260 0h18v191h-18zM386 0h12v191h-12zM510 0h18v191h-18zM636 0h12v191h-12zM762 0h18v191h-18zM888 0h12v191h-12zM1013 0h18v191h-18zM1100 0h28v191h-28z"/>
+  </g>
+  <path d="M0 130c80-22 116-4 185-13 76-10 132 18 210 2 77-15 126-8 190 3 84 14 130-17 211-3 67 12 116 18 179 2 54-14 96-11 153 8v62H0z" fill="url(#ground)"/>
+  <g opacity=".22" stroke="#fff" stroke-width="2">
+    <path d="M0 0v191M74 0v191M198 0v191M322 0v191M448 0v191M574 0v191M700 0v191M826 0v191M952 0v191M1077 0v191"/>
+    <path d="M0 5h1128M0 71h1128M0 137h1128"/>
+  </g>
+  <rect width="1128" height="191" fill="url(#glass)"/>
+  <text x="260" y="88" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="800" font-style="italic" letter-spacing="-5">Build</text>
+  <text x="260" y="178" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="105" font-weight="800" font-style="italic" letter-spacing="-5">Beyond.</text>
+  <path d="M722 22v146" stroke="#fff" stroke-width="3"/>
+  <text x="752" y="47" fill="#101719" font-family="Arial, Helvetica, sans-serif" font-size="29">Modern</text>
+  <rect x="740" y="59" width="359" height="34" fill="#aaff24" opacity=".86"/>
+  <text x="751" y="85" fill="#344522" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" font-style="italic">Software development</text>
+  <text x="752" y="128" fill="#101719" font-family="Arial, Helvetica, sans-serif" font-size="27">and intelligent</text>
+  <text x="752" y="164" fill="#101719" font-family="Arial, Helvetica, sans-serif" font-size="28">AI <tspan font-weight="700" font-style="italic">Solutions</tspan></text>
+  <rect y="168" width="1128" height="23" fill="#101517" opacity=".28" filter="url(#soft)"/>
+</svg>
