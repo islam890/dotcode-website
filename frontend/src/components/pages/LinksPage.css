@@ -33,7 +33,7 @@
   flex-direction: row;          /* Logo on Left, Text on Right */
   align-items: flex-end;        
   justify-content: flex-start;  
-  gap: 14px;                   
+  gap: 16px;                   
   overflow: hidden;
   margin-bottom: 6px;
   padding: 18px 18px 22px 18px; 
@@ -46,7 +46,7 @@
   background-repeat: no-repeat;
 }
 
-/* Smooth dark gradient without hard cuts */
+/* Dark gradient background */
 #dotcode-links-page .links-hero::before {
   position: absolute;
   z-index: 0;
@@ -63,7 +63,7 @@
   pointer-events: none;
 }
 
-/* Seamless backdrop blur covering full height */
+/* Backdrop blur overlay */
 #dotcode-links-page .links-hero::after {
   position: absolute;
   z-index: 1;
@@ -100,16 +100,18 @@
 
 #dotcode-links-page .links-logo {
   display: flex;
-  width: 68px;
-  height: 68px;
-  flex: 0 0 68px;
+  width: 84px;                  /* تكبير حجم اللوجو كبيراً وواضحاً كـ Image 2 */
+  height: 84px;
+  flex: 0 0 84px;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;        
+  align-self: flex-start;        /* محاذاة اللوجو بجانب العنوان "DotCode Agency" */
+  margin-top: 4px;              /* ضبط موضعي دقيق للسطر الأول */
   overflow: hidden;
   border: 0;
   border-radius: 50%;
   background: #2563eb;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 #dotcode-links-page .links-logo-image {
@@ -129,15 +131,15 @@
   margin: 0;
   color: #fff;
   font-family: Syne, Inter, sans-serif;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 19px;
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.03em;
 }
 
 #dotcode-links-page .links-intro p {
   max-width: 580px;
-  margin: 3px 0 0;
+  margin: 4px 0 0;
   color: rgb(255 255 255 / 88%);
   font-size: 11px;
   line-height: 1.4;
@@ -585,10 +587,11 @@
   }
 
   #dotcode-links-page .links-logo {
-    width: 88px;
-    height: 88px;
-    flex: 0 0 88px;
+    width: 92px;
+    height: 92px;
+    flex: 0 0 92px;
     align-self: flex-end;
+    margin-top: 0;
   }
 
   #dotcode-links-page .links-intro {
@@ -629,13 +632,14 @@
   #dotcode-links-page .links-hero {
     min-height: 180px;
     padding: 12px;
-    gap: 10px;
+    gap: 12px;
   }
 
   #dotcode-links-page .links-logo {
-    width: 54px;
-    height: 54px;
-    flex: 0 0 54px;
+    width: 72px;
+    height: 72px;
+    flex: 0 0 72px;
+    margin-top: 2px;
   }
 
   #dotcode-links-page .links-intro h1 {
